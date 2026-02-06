@@ -4,16 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini 3 Pro - Retro Synth Studio</title>
+    <title>Gemini 3 Pro - Retro Cassette Studio</title>
     <style>
-        /* --- CSS STYLES (THE LOOK) --- */
         :root {
             --neon-green: #00e676;
             --neon-pink: #ff00ff;
             --neon-blue: #00d4ff;
-            --purple: #7000ff;
             --bg: #050510;
-            --panel: rgba(20, 20, 35, 0.9);
+            --panel: rgba(20, 20, 35, 0.95);
         }
 
         body {
@@ -27,24 +25,22 @@
             overflow: hidden;
         }
 
-        /* Tabs & Navigation */
         nav {
             background: #000;
             display: flex;
             justify-content: center;
             border-bottom: 2px solid var(--neon-blue);
             z-index: 100;
-            flex-shrink: 0;
         }
 
         .tab-btn {
-            padding: 18px 30px;
+            padding: 18px 25px;
             border: none;
             background: none;
             color: #666;
             cursor: pointer;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 12px;
             letter-spacing: 2px;
             transition: 0.3s;
         }
@@ -55,13 +51,12 @@
             text-shadow: 0 0 10px var(--neon-green);
         }
 
-        /* Retro Visualizer Area */
-        #visualizer-area {
+        /* Visualizer Area */
+        #viz-container {
             position: relative;
             height: 300px;
-            background: linear-gradient(to bottom, #050510, #1a0033);
+            background: linear-gradient(to bottom, #050510, #150025);
             border-bottom: 1px solid #333;
-            flex-shrink: 0;
         }
 
         canvas {
@@ -69,7 +64,7 @@
             height: 100%;
         }
 
-        /* Main Content Studio */
+        /* Monitor & Controls */
         .studio-content {
             flex: 1;
             padding: 20px;
@@ -82,7 +77,7 @@
         .tab-pane {
             display: none;
             width: 100%;
-            max-width: 1200px;
+            max-width: 1100px;
             animation: fadeIn 0.4s ease;
         }
 
@@ -90,7 +85,6 @@
             display: block;
         }
 
-        /* Dashboard Monitor */
         .dashboard {
             display: flex;
             gap: 20px;
@@ -105,15 +99,15 @@
             flex: 2;
             text-align: center;
             border: 1px solid var(--neon-blue);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
         }
 
-        #chord-name {
-            font-size: 34px;
+        #note-display {
+            font-size: 32px;
             color: var(--neon-green);
             font-weight: 800;
             text-shadow: 0 0 10px var(--neon-green);
-            margin: 10px 0;
+            margin: 5px 0;
         }
 
         .record-panel {
@@ -136,7 +130,6 @@
             cursor: pointer;
             font-weight: bold;
             width: 100%;
-            transition: 0.2s;
             text-transform: uppercase;
         }
 
@@ -146,11 +139,11 @@
             color: #000;
         }
 
-        /* Professional Keyboard */
-        .keyboard-frame {
+        /* Keyboard */
+        .piano-frame {
             background: #111;
-            padding: 30px 15px;
-            border-radius: 15px;
+            padding: 25px 15px;
+            border-radius: 12px;
             border: 4px solid #333;
             overflow-x: auto;
             width: 100%;
@@ -177,22 +170,22 @@
         }
 
         .key.white {
-            width: 42px;
-            height: 220px;
-            background: linear-gradient(to bottom, #eee 0%, #fff 90%, #ccc 100%);
-            color: #999;
+            width: 40px;
+            height: 200px;
+            background: linear-gradient(to bottom, #eee, #fff 90%, #ccc);
+            color: #888;
             border: 1px solid #bbb;
             border-radius: 0 0 6px 6px;
             z-index: 1;
         }
 
         .key.black {
-            width: 28px;
-            height: 130px;
-            background: linear-gradient(to bottom, #444 0%, #111 100%);
+            width: 26px;
+            height: 120px;
+            background: linear-gradient(to bottom, #444, #111);
             color: #fff;
-            margin-left: -14px;
-            margin-right: -14px;
+            margin-left: -13px;
+            margin-right: -13px;
             z-index: 2;
             border-radius: 0 0 4px 4px;
             border: 1px solid #000;
@@ -205,20 +198,19 @@
             box-shadow: 0 0 20px var(--neon-green);
         }
 
-        /* Grids for Samples and Mixes */
+        /* Cards */
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 15px;
         }
 
         .card {
             background: var(--panel);
             border: 1px solid #333;
-            padding: 20px;
-            border-radius: 10px;
+            padding: 15px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: 0.2s;
             border-left: 5px solid var(--neon-blue);
         }
 
@@ -227,7 +219,7 @@
             transform: translateY(-3px);
         }
 
-        .card.user-card {
+        .card.user {
             border-left-color: var(--neon-pink);
         }
 
@@ -260,204 +252,163 @@
 <body>
 
     <nav>
-        <button class="tab-btn active" onclick="openTab(event, 'keyboard-tab')">STUDIO</button>
-        <button class="tab-btn" onclick="openTab(event, 'samples-tab')">SYSTEM SAMPLES (120)</button>
-        <button class="tab-btn" onclick="openTab(event, 'mix-tab')">USER MIX GALLERY</button>
+        <button class="tab-btn active" onclick="setTab(event, 'kb-tab')">STUDIO</button>
+        <button class="tab-btn" onclick="setTab(event, 'sys-tab')">SYSTEM FILES (120)</button>
+        <button class="tab-btn" onclick="setTab(event, 'mix-tab')">USER MIX GALLERY</button>
     </nav>
 
-    <div id="visualizer-area">
-        <canvas id="retroCanvas"></canvas>
-    </div>
+    <div id="viz-container"><canvas id="canvas"></canvas></div>
 
     <div class="studio-content">
-        <!-- Tab 1: Studio Keyboard -->
-        <div id="keyboard-tab" class="tab-pane active">
+        <div id="kb-tab" class="tab-pane active">
             <div class="dashboard">
                 <div class="monitor">
-                    <div style="font-size:11px; letter-spacing:3px; color:#555">GEMINI 3 RECOGNITION</div>
-                    <div id="chord-name">READY</div>
+                    <div style="font-size:10px; color:#555; letter-spacing:2px">GEMINI 3 RECOGNITION</div>
+                    <div id="note-display">READY</div>
                 </div>
                 <div class="record-panel">
-                    <button id="rec-btn" onclick="toggleRecord()">START RECORDING</button>
-                    <div id="timer" style="margin-top:10px; color:var(--neon-pink); font-family:monospace;">10s LIMIT
+                    <button id="rec-btn" onclick="toggleRec()">START RECORDING</button>
+                    <div id="timer" style="margin-top:10px; color:var(--neon-pink); font-family:monospace">10s LIMIT
                     </div>
                 </div>
             </div>
-            <div class="keyboard-frame">
+            <div class="piano-frame">
                 <div class="keys-container" id="piano-keys"></div>
             </div>
         </div>
 
-        <!-- Tab 2: System Samples -->
-        <div id="samples-tab" class="tab-pane">
-            <h2 style="color:var(--neon-blue)">120 Rhythmic Motifs</h2>
-            <div class="grid" id="sample-grid"></div>
+        <div id="sys-tab" class="tab-pane">
+            <h3 style="color:var(--neon-blue)">120 Musical Motifs</h3>
+            <div class="grid" id="sys-grid"></div>
         </div>
 
-        <!-- Tab 3: User Mixes -->
         <div id="mix-tab" class="tab-pane">
-            <h2 style="color:var(--neon-pink)">User Saved Tones</h2>
+            <h3 style="color:var(--neon-pink)">My Saved Mixes</h3>
             <div class="grid" id="mix-grid"></div>
         </div>
     </div>
 
     <script>
-        /** 
-         * 1. CORE AUDIO & SYNTH ENGINE
-         */
+        /** 1. AUDIO ENGINE **/
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const analyser = audioCtx.createAnalyser();
         const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-        const activeOscs = {};
-        const systemChords = {}; // For Logic Comparison
-        let isRecording = false;
-        let sessionEvents = [];
-        let recStartTime = 0;
+        const activeOscs = new Map();
+        const chordLib = {};
+        let isRecording = false, events = [], recStart = 0;
 
-        function startSound(midi, isAuto = false) {
-            if (activeOscs[midi] && !isAuto) return;
+        function play(midi, isAuto = false) {
+            if (activeOscs.has(midi) && !isAuto) return;
             const freq = 440 * Math.pow(2, (midi - 69) / 12);
-            const g = audioCtx.createGain();
             const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
 
-            osc.type = 'triangle'; // Warm retro sound
+            osc.type = 'triangle';
             osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
             g.gain.setValueAtTime(0, audioCtx.currentTime);
-            g.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.03); // Fast attack
+            g.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.03);
 
             osc.connect(g); g.connect(analyser); analyser.connect(audioCtx.destination);
             osc.start();
 
             if (!isAuto) {
-                activeOscs[midi] = { osc, g };
-                if (isRecording) sessionEvents.push({ time: Date.now() - recStartTime, midi, type: 'on' });
-                identifyChord();
+                activeOscs.set(midi, { osc, g });
+                if (isRecording) events.push({ time: Date.now() - recStart, midi, type: 'on' });
+                identify();
             }
             return { osc, g };
         }
 
-        function stopSound(midi) {
-            if (activeOscs[midi]) {
-                const { osc, g } = activeOscs[midi];
-                g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05); // Smooth Release
-                setTimeout(() => osc.stop(), 200);
-                delete activeOscs[midi];
-                if (isRecording) sessionEvents.push({ time: Date.now() - recStartTime, midi, type: 'off' });
+        function stop(midi) {
+            if (activeOscs.has(midi)) {
+                const { osc, g } = activeOscs.get(midi);
+                g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1);
+                setTimeout(() => osc.stop(), 120);
+                activeOscs.delete(midi);
+                if (isRecording) events.push({ time: Date.now() - recStart, midi, type: 'off' });
+                identify();
             }
         }
 
-        /** 
-         * 2. RETRO VISUALIZER (CASSETTE + MOUNTAINS)
-         */
-        const canvas = document.getElementById('retroCanvas');
-        const ctx = canvas.getContext('2d');
-        let rotation = 0;
-
+        /** 2. RETRO VISUALIZER **/
+        const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
+        let rot = 0;
         function draw() {
             requestAnimationFrame(draw);
-            canvas.width = window.innerWidth;
-            canvas.height = 300;
+            canvas.width = window.innerWidth; canvas.height = 300;
             const data = new Uint8Array(analyser.frequencyBinCount);
             analyser.getByteFrequencyData(data);
-            const volume = data.reduce((a, b) => a + b) / data.length;
+            const vol = data.reduce((a, b) => a + b) / data.length;
 
-            ctx.fillStyle = "#050510";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#050510"; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             // Wireframe Grid
-            ctx.strokeStyle = "#1a1a3a";
-            ctx.lineWidth = 1;
+            ctx.strokeStyle = "#1a1a3a"; ctx.lineWidth = 1;
             for (let i = 0; i < canvas.width; i += 40) {
                 ctx.beginPath(); ctx.moveTo(i, 300); ctx.lineTo(i, 200); ctx.stroke();
             }
 
             // Cassette Drawing
-            const cx = canvas.width / 2;
-            const cy = 130;
-            ctx.strokeStyle = volume > 5 ? varColor('--neon-blue') : "#333";
-            ctx.lineWidth = 3;
+            const cx = canvas.width / 2, cy = 130;
+            ctx.strokeStyle = vol > 5 ? "#00d4ff" : "#333"; ctx.lineWidth = 3;
             ctx.strokeRect(cx - 140, cy - 70, 280, 140);
 
-            // Spinning Reels
-            if (volume > 2) rotation += 0.05 + (volume / 50);
+            if (vol > 2) rot += 0.05 + (vol / 50);
             [cx - 60, cx + 60].forEach(x => {
                 ctx.beginPath(); ctx.arc(x, cy, 35, 0, Math.PI * 2); ctx.stroke();
                 for (let i = 0; i < 6; i++) {
                     ctx.moveTo(x, cy);
-                    ctx.lineTo(x + Math.cos(rotation + i) * 30, cy + Math.sin(rotation + i) * 30);
+                    ctx.lineTo(x + Math.cos(rot + i) * 30, x + Math.sin(rot + i) * 30); // Not using x here, using cy for Y
+                    ctx.lineTo(x + Math.cos(rot + i) * 30, cy + Math.sin(rot + i) * 30);
                 }
                 ctx.stroke();
             });
         }
-        function varColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name); }
         draw();
 
-        /** 
-         * 3. KEYBOARD GENERATION
-         */
+        /** 3. PIANO UI & LOGIC **/
         const piano = document.getElementById('piano-keys');
         for (let i = 0; i < 64; i++) {
             const midi = 36 + i;
-            const note = noteNames[midi % 12];
-            const octave = Math.floor(midi / 12) - 1;
-            const label = note + octave;
-
+            const label = noteNames[midi % 12] + (Math.floor(midi / 12) - 1);
             const key = document.createElement('div');
-            key.className = `key ${note.includes('#') ? 'black' : 'white'}`;
+            key.className = `key ${label.includes('#') ? 'black' : 'white'}`;
             key.innerHTML = `<span>${label}</span>`;
             key.dataset.midi = midi;
 
-            const down = (e) => {
-                e.preventDefault(); if (audioCtx.state === 'suspended') audioCtx.resume();
-                key.classList.add('active'); startSound(midi);
-            };
-            const up = () => { key.classList.remove('active'); stopSound(midi); };
+            const down = (e) => { e.preventDefault(); if (audioCtx.state === 'suspended') audioCtx.resume(); key.classList.add('active'); play(midi); };
+            const up = () => { key.classList.remove('active'); stop(midi); };
 
             key.onmousedown = down; key.onmouseup = up; key.onmouseleave = up;
             key.ontouchstart = down; key.ontouchend = up;
             piano.appendChild(key);
         }
 
-        /** 
-         * 4. LOGIC: CHORD RECOGNITION & 120 SAMPLES
-         */
-        function identifyChord() {
-            const active = Object.keys(activeOscs).map(n => parseInt(n) % 12).sort((a, b) => a - b);
+        function identify() {
+            const active = [...activeOscs.keys()].map(n => n % 12).sort((a, b) => a - b);
             const sig = [...new Set(active)].join(',');
-            const display = document.getElementById('chord-name');
-
-            if (systemChords[sig]) {
-                display.innerText = systemChords[sig];
-                display.style.color = "var(--neon-green)";
-            } else if (active.length > 0) {
-                display.innerText = "USER KEY NOTE";
-                display.style.color = "var(--neon-pink)";
-            } else {
-                display.innerText = "READY";
-            }
+            const disp = document.getElementById('note-display');
+            disp.innerText = chordLib[sig] || (active.length > 0 ? "USER KEY NOTE" : "READY");
+            disp.style.color = chordLib[sig] ? "var(--neon-green)" : "var(--neon-pink)";
         }
 
+        /** 4. SAMPLES (120 FILES) **/
         function initSamples() {
-            const types = {
-                "Maj": [0, 4, 7], "Min": [0, 3, 7], "7th": [0, 4, 7, 10], "Maj7": [0, 4, 7, 11],
-                "Sus2": [0, 2, 7], "Sus4": [0, 5, 7], "Dim": [0, 3, 6], "Aug": [0, 4, 8],
-                "6th": [0, 4, 7, 9], "m7": [0, 3, 7, 10]
-            };
-            const grid = document.getElementById('sample-grid');
+            const types = { "Maj": [0, 4, 7], "Min": [0, 3, 7], "7th": [0, 4, 7, 10], "Maj7": [0, 4, 7, 11], "Sus2": [0, 2, 7], "Sus4": [0, 5, 7], "Dim": [0, 3, 6], "Aug": [0, 4, 8], "6th": [0, 4, 7, 9], "m7": [0, 3, 7, 10] };
+            const grid = document.getElementById('sys-grid');
             for (let r = 0; r < 12; r++) {
                 for (let t in types) {
                     const name = noteNames[r] + " " + t;
                     const sig = types[t].map(v => (r + v) % 12).sort((a, b) => a - b).join(',');
-                    systemChords[sig] = name; // Map for comparison logic
-
+                    chordLib[sig] = name;
                     const card = document.createElement('div');
                     card.className = 'card';
-                    card.innerHTML = `<strong>${name}</strong><br><small>10s System Motif</small>`;
+                    card.innerHTML = `<strong>${name}</strong><br><small>System Tone</small>`;
                     card.onclick = () => {
                         types[t].forEach((v, i) => {
                             setTimeout(() => {
-                                const s = startSound(r + 48 + v, true);
-                                setTimeout(() => s.g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1), 2000);
+                                const s = play(r + 48 + v, true);
+                                setTimeout(() => s.g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1), 1500);
                             }, i * 250);
                         });
                     };
@@ -466,48 +417,43 @@
             }
         }
 
-        /** 
-         * 5. RECORDING & PERSISTENCE
-         */
-        function toggleRecord() {
+        /** 5. RECORDING & TABS **/
+        function toggleRec() {
             if (!isRecording) {
-                isRecording = true; recStartTime = Date.now(); sessionEvents = [];
+                isRecording = true; recStart = Date.now(); events = [];
                 document.getElementById('rec-btn').innerText = "STOP & SAVE";
                 document.getElementById('rec-btn').classList.add('recording');
-                setTimeout(() => { if (isRecording) toggleRecord(); }, 10000);
+                setTimeout(() => { if (isRecording) toggleRec(); }, 10000);
             } else {
                 isRecording = false;
                 document.getElementById('rec-btn').innerText = "START RECORDING";
                 document.getElementById('rec-btn').classList.remove('recording');
-                if (sessionEvents.length > 0) {
-                    const saved = JSON.parse(localStorage.getItem('gemini_retro_db') || '[]');
-                    saved.push({ id: Date.now(), data: sessionEvents });
-                    localStorage.setItem('gemini_retro_db', JSON.stringify(saved));
-                    loadUserMixes();
+                if (events.length > 0) {
+                    const saved = JSON.parse(localStorage.getItem('mixes') || '[]');
+                    saved.push({ id: Date.now(), data: events });
+                    localStorage.setItem('mixes', JSON.stringify(saved));
+                    renderMixes();
                 }
             }
         }
 
-        function loadUserMixes() {
+        function renderMixes() {
             const grid = document.getElementById('mix-grid');
-            const saved = JSON.parse(localStorage.getItem('gemini_retro_db') || '[]');
+            const saved = JSON.parse(localStorage.getItem('mixes') || '[]');
             grid.innerHTML = saved.length === 0 ? '<p style="color:#444">No recordings yet.</p>' : '';
             saved.forEach(mix => {
                 const card = document.createElement('div');
-                card.className = 'card user-card';
-                card.innerHTML = `<strong>Mix #${mix.id.toString().slice(-4)}</strong><br><small>User Discovery</small>`;
+                card.className = 'card user';
+                card.innerHTML = `<strong>Mix #${mix.id.toString().slice(-4)}</strong><br><small>User Performance</small>`;
                 card.onclick = () => {
-                    const replayVoices = {};
+                    const voices = {};
                     mix.data.forEach(e => {
                         setTimeout(() => {
                             if (e.type === 'on') {
-                                const v = startSound(e.midi, true);
-                                replayVoices[e.midi] = v;
+                                const v = play(e.midi, true); voices[e.midi] = v;
                                 document.querySelector(`[data-midi="${e.midi}"]`)?.classList.add('active');
-                            } else {
-                                if (replayVoices[e.midi]) {
-                                    replayVoices[e.midi].g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
-                                }
+                            } else if (voices[e.midi]) {
+                                voices[e.midi].g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
                                 document.querySelector(`[data-midi="${e.midi}"]`)?.classList.remove('active');
                             }
                         }, e.time);
@@ -517,15 +463,14 @@
             });
         }
 
-        function openTab(e, id) {
+        function setTab(e, id) {
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            e.currentTarget.classList.add('active');
+            document.getElementById(id).classList.add('active'); e.currentTarget.classList.add('active');
         }
 
         initSamples();
-        loadUserMixes();
+        renderMixes();
     </script>
 </body>
 
