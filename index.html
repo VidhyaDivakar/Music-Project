@@ -4,89 +4,558 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Studio Blue Pro - Asset Platform</title>
-
-    <!-- PWA Manifest -->
+    <title>Studio Blue Pro</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#00A3FF">
-
-    <!-- Dependencies: FontAwesome for Icons & Studio Styles -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* --- ALL CSS STYLES INTEGRATED HERE --- */
+        @import url('https://fonts.googleapis.com/css2?family=Indie+Flower&family=Inter:wght@400;900&display=swap');
+
+        :root {
+            --studio-blue: #00A3FF;
+            --ui-amber: #FFC107;
+            --bg: #05070A;
+            --card-bg: #111418;
+            --text-main: #FFFFFF;
+            --text-dim: #8B949E;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        header {
+            background: #000;
+            padding: 15px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--studio-blue);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--studio-blue);
+        }
+
+        .brand i {
+            background: var(--studio-blue);
+            color: white;
+            padding: 10px;
+            border-radius: 12px;
+        }
+
+        .search-box {
+            position: relative;
+            width: 35%;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 15px 12px 40px;
+            background: #161B22;
+            border: 1px solid #30363D;
+            border-radius: 25px;
+            color: white;
+            outline: none;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 12px;
+            color: #555;
+        }
+
+        nav {
+            background: #000;
+            display: flex;
+            justify-content: center;
+            border-bottom: 1px solid #222;
+        }
+
+        .tab-btn {
+            padding: 18px 25px;
+            border: none;
+            background: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 11px;
+        }
+
+        .tab-btn.active {
+            color: var(--studio-blue);
+            border-bottom: 3px solid var(--studio-blue);
+        }
+
+        .ribbon {
+            background: #080A0C;
+            padding: 15px 40px;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .genre-chip {
+            padding: 8px 18px;
+            background: #161B22;
+            border-radius: 20px;
+            font-size: 11px;
+            cursor: pointer;
+            border: 1px solid #333;
+            color: var(--text-dim);
+        }
+
+        .genre-chip.active {
+            background: var(--studio-blue);
+            color: black;
+            font-weight: bold;
+            border-color: var(--studio-blue);
+        }
+
+        .viewport {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .tab-pane {
+            display: none;
+            width: 100%;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        .monitor {
+            background: #000;
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid var(--studio-blue);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #note-display {
+            font-size: 32px;
+            color: var(--studio-blue);
+            font-weight: 900;
+        }
+
+        .keyboard-wrap {
+            background: #000;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            border: 1px solid #222;
+        }
+
+        .keys {
+            display: flex;
+            position: relative;
+            width: max-content;
+        }
+
+        .key {
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 15px;
+            font-size: 10px;
+            font-weight: bold;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .key.white {
+            width: 42px;
+            height: 210px;
+            background: #fff;
+            border: 1px solid #ddd;
+            color: #999;
+        }
+
+        .key.black {
+            width: 26px;
+            height: 125px;
+            background: #111;
+            color: #fff;
+            margin-left: -13px;
+            margin-right: -14px;
+            z-index: 2;
+            border: 1px solid #000;
+        }
+
+        .key.active {
+            background: var(--studio-blue) !important;
+            color: white !important;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .tone-card {
+            background: var(--card-bg);
+            border: 1px solid #222;
+            border-radius: 15px;
+            padding: 20px;
+            transition: 0.3s;
+        }
+
+        .tone-card:hover {
+            border-color: var(--studio-blue);
+            transform: translateY(-5px);
+        }
+
+        .card-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .card-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #222;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        .play-btn {
+            background: var(--studio-blue);
+            border: none;
+            color: black;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .tool-btn {
+            background: none;
+            border: none;
+            color: #555;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .tool-btn:hover {
+            color: var(--studio-blue);
+        }
+
+        /* Sticky Notes */
+        .sticky-board {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            padding: 40px 0;
+        }
+
+        .sticky-note {
+            width: 260px;
+            min-height: 260px;
+            padding: 25px;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
+            transition: 0.4s;
+        }
+
+        .sticky-note.green {
+            background: #c3f0bb;
+            transform: rotate(-2deg);
+            color: #2d4d2a;
+        }
+
+        .sticky-note.yellow {
+            background: #fff9b1;
+            transform: rotate(3deg);
+            color: #5d5a2b;
+        }
+
+        .sticky-note.expanded {
+            width: 500px;
+            min-height: 400px;
+            transform: rotate(0deg);
+            z-index: 100;
+        }
+
+        .note-heading {
+            font-weight: 900;
+            text-transform: uppercase;
+            border-bottom: 1px dashed rgba(0, 0, 0, 0.2);
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+
+        .note-content {
+            font-family: 'Indie Flower', cursive;
+            font-size: 20px;
+            display: none;
+        }
+
+        .sticky-note.expanded .note-content {
+            display: block;
+        }
+
+        .pin {
+            width: 14px;
+            height: 14px;
+            background: #ff5252;
+            border-radius: 50%;
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    </style>
 </head>
 
 <body>
 
-    <!-- Header Section -->
     <header>
-        <div class="brand">
-            <i class="fa-solid fa-guitar"></i>
+        <div class="brand"><i class="fa-solid fa-guitar"></i>
             <h2 style="margin:0">Studio <span style="color:white">Blue</span></h2>
         </div>
-        <div class="search-box">
-            <i class="fa fa-search"></i>
-            <input type="text" id="search-box" placeholder="Search 120+ tones..." onkeyup="runSearch()">
-        </div>
+        <div class="search-box"><i class="fa fa-search"></i><input type="text" id="search-box"
+                placeholder="Search 120+ tones..." onkeyup="runSearch()"></div>
         <button id="rec-btn" onclick="handleRecording()"
             style="background:red; color:white; border:none; padding:10px 20px; border-radius:20px; font-weight:bold; cursor:pointer;">REC</button>
     </header>
 
-    <!-- Main Tab Navigation -->
     <nav>
         <button class="tab-btn active" onclick="navTo(event, 'pane-studio')">Studio</button>
-        <button class="tab-btn" onclick="navTo(event, 'pane-library')">Tone Library</button>
-        <button class="tab-btn" onclick="navTo(event, 'pane-user')">User Saved Tones</button>
+        <button class="tab-btn" onclick="navTo(event, 'pane-library')">Library</button>
+        <button class="tab-btn" onclick="navTo(event, 'pane-user')">User Tones</button>
+        <button class="tab-btn" onclick="navTo(event, 'pane-manual')">Manual</button>
     </nav>
 
-    <!-- Trending Genres Ribbon -->
-    <div class="ribbon" id="genre-ribbon">
+    <div class="ribbon">
         <div class="genre-chip active" onclick="filterByGenre('All')">All Tones</div>
-        <div class="genre-chip" onclick="filterByGenre('Gaming Classics')">Gaming Classics</div>
-        <div class="genre-chip" onclick="filterByGenre('Viral Pop Snippets')">Viral Pop Snippets</div>
-        <div class="genre-chip" onclick="filterByGenre('ASMR & Nature')">ASMR & Nature</div>
-        <div class="genre-chip" onclick="filterByGenre('Retro & Lofi')">Retro & Lofi</div>
-        <div class="genre-chip" onclick="filterByGenre('Minimalist UI')">Minimalist UI</div>
-        <div class="genre-chip" onclick="filterByGenre('Cinematic Effects')">Cinematic Effects</div>
+        <div class="genre-chip" onclick="filterByGenre('Gaming Classics')">Gaming</div>
+        <div class="genre-chip" onclick="filterByGenre('Viral Pop Snippets')">Viral Pop</div>
+        <div class="genre-chip" onclick="filterByGenre('ASMR & Nature')">ASMR</div>
+        <div class="genre-chip" onclick="filterByGenre('Minimalist UI')">UI & Apps</div>
     </div>
 
-    <!-- Main Viewport -->
     <div class="viewport">
-        <!-- STUDIO PANE: Manual Keyboard Play -->
         <div id="pane-studio" class="tab-pane active">
             <div class="monitor">
                 <div id="note-display">Ready to Compose</div>
-                <div style="color:#444; font-size:12px; margin-top:10px;">64-KEY HIGH FIDELITY ENGINE</div>
             </div>
             <div class="keyboard-wrap">
                 <div class="keys" id="piano-keys"></div>
             </div>
         </div>
-
-        <!-- LIBRARY PANE: Searchable Tone Gallery -->
         <div id="pane-library" class="tab-pane">
             <div class="grid" id="lib-grid"></div>
         </div>
-
-        <!-- USER PANE: Saved Recordings & Management -->
         <div id="pane-user" class="tab-pane">
             <div class="grid" id="user-grid"></div>
         </div>
+        <div id="pane-manual" class="tab-pane">
+            <div class="sticky-board">
+                <div class="sticky-note green" onclick="toggleNote(this)">
+                    <div class="pin"></div>
+                    <h3 class="note-heading">The Vision</h3>
+                    <p class="note-content">Studio Blue is designed to capture musical "happy accidents." Record your
+                        soul's signatures instantly.</p>
+                </div>
+                <div class="sticky-note yellow" onclick="toggleNote(this)">
+                    <div class="pin"></div>
+                    <h3 class="note-heading">PWA Tech</h3>
+                    <p class="note-content">Works offline. Install it as an app on your phone via the share/browser
+                        menu!</p>
+                </div>
+                <div class="sticky-note green" onclick="toggleNote(this)">
+                    <div class="pin"></div>
+                    <h3 class="note-heading">Usage</h3>
+                    <p class="note-content">Play the keys to compose. Hit REC to save a master. Explore the library for
+                        inspiration.</p>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- 1. Load Tone Data First -->
+    <!-- DATA SOURCE -->
     <script src="tones.js"></script>
 
-    <!-- 2. Load App Logic Second -->
-    <script src="app.js"></script>
-
-    <!-- 3. Service Worker Registration (PWA Logic) -->
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('Studio Blue: Service Worker Registered'))
-                    .catch(err => console.log('Studio Blue: Service Worker Failed', err));
+        /* --- ALL LOGIC INTEGRATED HERE --- */
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+        const activeOscs = new Map();
+        let sampleVoices = [];
+        let isRecording = false, recData = [], recStart = 0;
+
+        function playNote(midi, isAuto = false, dur = 1.5) {
+            if (activeOscs.has(midi) && !isAuto) return;
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(440 * Math.pow(2, (midi - 69) / 12), audioCtx.currentTime);
+            g.gain.setValueAtTime(0, audioCtx.currentTime);
+            g.gain.linearRampToValueAtTime(0.25, audioCtx.currentTime + 0.05);
+            osc.connect(g); g.connect(audioCtx.destination);
+            osc.start();
+            if (!isAuto) {
+                activeOscs.set(midi, { osc, g });
+                if (isRecording) recData.push({ time: Date.now() - recStart, midi, type: 'on' });
+            } else {
+                setTimeout(() => { g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1); setTimeout(() => osc.stop(), 200); }, dur * 1000);
+                return { osc, g };
+            }
+        }
+
+        function stopNote(midi) {
+            if (activeOscs.has(midi)) {
+                const { osc, g } = activeOscs.get(midi);
+                g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
+                setTimeout(() => osc.stop(), 200);
+                activeOscs.delete(midi);
+                if (isRecording) recData.push({ time: Date.now() - recStart, midi, type: 'off' });
+            }
+        }
+
+        const piano = document.getElementById('piano-keys');
+        for (let i = 0; i < 64; i++) {
+            const midi = 36 + i;
+            const label = noteNames[midi % 12] + (Math.floor(midi / 12) - 1);
+            const key = document.createElement('div');
+            key.className = `key ${label.includes('#') ? 'black' : 'white'}`;
+            key.innerHTML = `<span>${label}</span>`;
+            key.dataset.midi = midi;
+            key.onmousedown = (e) => { e.preventDefault(); if (audioCtx.state === 'suspended') audioCtx.resume(); key.classList.add('active'); playNote(midi); document.getElementById('note-display').innerText = label; };
+            key.onmouseup = () => { key.classList.remove('active'); stopNote(midi); };
+            key.onmouseleave = () => { key.classList.remove('active'); stopNote(midi); };
+            piano.appendChild(key);
+        }
+
+        function renderLibrary(search = "", genre = "All") {
+            const grid = document.getElementById('lib-grid');
+            grid.innerHTML = '';
+            toneLibrary.filter(t => {
+                const mS = t.name.toLowerCase().includes(search.toLowerCase());
+                const mG = genre === "All" || t.genre === genre;
+                return mS && mG;
+            }).forEach(tone => {
+                const card = document.createElement('div');
+                card.className = 'tone-card';
+                card.innerHTML = `
+                    <div class="card-top">
+                        <div class="card-icon" style="background:${tone.color}"><i class="fa ${tone.icon}"></i></div>
+                        <div><h4 style="margin:0">${tone.name}</h4><div style="font-size:11px;color:#555">${tone.genre}</div></div>
+                    </div>
+                    <div class="actions">
+                        <button class="tool-btn" onclick="alert('Shared!')"><i class="fa fa-share-nodes"></i> Share</button>
+                        <button class="play-btn" onclick="playAsset(${JSON.stringify(tone.motif)}, ${tone.dur})"><i class="fa fa-play"></i></button>
+                    </div>`;
+                grid.appendChild(card);
             });
+        }
+
+        function playAsset(motif, dur) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            sampleVoices.forEach(v => { v.g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1); setTimeout(() => v.osc.stop(), 200); });
+            sampleVoices = [];
+            motif.forEach((v, i) => { setTimeout(() => { const s = playNote(60 + v, true, dur); sampleVoices.push(s); }, i * 160); });
+        }
+
+        function handleRecording() {
+            const btn = document.getElementById('rec-btn');
+            if (!isRecording) {
+                isRecording = true; recStart = Date.now(); recData = [];
+                btn.innerText = "SAVE"; btn.style.background = "#fff"; btn.style.color = "#000";
+            } else {
+                isRecording = false; btn.innerText = "REC"; btn.style.background = "red"; btn.style.color = "white";
+                if (recData.length > 0) {
+                    const saved = JSON.parse(localStorage.getItem('sb_pro_mixes') || '[]');
+                    saved.push({ id: Date.now(), name: "User Tone " + saved.length, data: recData });
+                    localStorage.setItem('sb_pro_mixes', JSON.stringify(saved));
+                    renderUser();
+                }
+            }
+        }
+
+        function renderUser() {
+            const grid = document.getElementById('user-grid');
+            const saved = JSON.parse(localStorage.getItem('sb_pro_mixes') || '[]');
+            grid.innerHTML = saved.length === 0 ? '<p style="color:#444; padding: 20px;">No sessions archived.</p>' : '';
+            saved.forEach(mix => {
+                const card = document.createElement('div');
+                card.className = 'tone-card';
+                card.innerHTML = `
+                    <div class="card-top"><div class="card-icon" style="background:#333"><i class="fa fa-microphone"></i></div><h4>${mix.name}</h4></div>
+                    <div class="actions">
+                        <button class="tool-btn" style="color:#ff5252" onclick="delUser(${mix.id})"><i class="fa fa-trash"></i> Delete</button>
+                        <button class="play-btn" onclick="playArchived(${JSON.stringify(mix.data)})"><i class="fa fa-play"></i></button>
+                    </div>`;
+                grid.appendChild(card);
+            });
+        }
+
+        function delUser(id) {
+            let saved = JSON.parse(localStorage.getItem('sb_pro_mixes') || '[]');
+            localStorage.setItem('sb_pro_mixes', JSON.stringify(saved.filter(m => m.id !== id)));
+            renderUser();
+        }
+
+        function playArchived(data) { data.forEach(e => { setTimeout(() => { if (e.type === 'on') playNote(e.midi, true, 1.0); }, e.time); }); }
+
+        function navTo(e, id) {
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active'); e.currentTarget.classList.add('active');
+        }
+
+        function filterByGenre(g) {
+            document.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            renderLibrary("", g);
+        }
+
+        function runSearch() { renderLibrary(document.getElementById('search-box').value); }
+        function toggleNote(el) { el.classList.toggle('expanded'); }
+
+        renderLibrary(); renderUser();
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); });
         }
     </script>
 </body>

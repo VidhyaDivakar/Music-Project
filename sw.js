@@ -1,22 +1,4 @@
-const CACHE_NAME = 'studio-pro-v2';
-const assets = [
-    './',
-    './index.html',
-    './manifest.json'
-];
-
-self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(assets);
-        })
-    );
-});
-
-self.addEventListener('fetch', (event) => {
-    event.respondWith(
-        caches.match(event.request).then((response) => {
-            return response || fetch(event.request);
-        })
-    );
-});
+const CACHE_NAME = 'studio-blue-v4';
+const assets = ['./', './index.html', './app.js', './tones.js', './manifest.json'];
+self.addEventListener('install', (e) => { e.waitUntil(caches.open(CACHE_NAME).then((c) => c.addAll(assets))); });
+self.addEventListener('fetch', (e) => { e.respondWith(caches.match(e.request).then((r) => r || fetch(e.request))); });
