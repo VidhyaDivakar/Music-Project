@@ -4,22 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini 3 Pro - Retro Synth Studio</title>
+    <title>Gemini 3 Pro - Studio Intelligence</title>
     <style>
-        /* --- CSS STYLES (THE LOOK) --- */
         :root {
-            --neon-green: #00e676;
-            --neon-pink: #ff00ff;
-            --neon-blue: #00d4ff;
-            --purple: #7000ff;
-            --bg: #050510;
-            --panel: rgba(20, 20, 35, 0.9);
+            --ui-teal: #26C6DA;
+            --ui-amber: #FFC107;
+            --ui-slate: #78909C;
+            --bg: #0d1117;
+            --panel: rgba(22, 27, 34, 0.95);
         }
 
         body {
             background: var(--bg);
-            color: #fff;
-            font-family: 'Segoe UI', sans-serif;
+            color: #c9d1d9;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             margin: 0;
             display: flex;
             flex-direction: column;
@@ -27,41 +25,39 @@
             overflow: hidden;
         }
 
-        /* Tabs & Navigation */
+        /* Navigation */
         nav {
-            background: #000;
+            background: #010409;
             display: flex;
             justify-content: center;
-            border-bottom: 2px solid var(--neon-blue);
+            border-bottom: 1px solid #30363d;
             z-index: 100;
-            flex-shrink: 0;
         }
 
         .tab-btn {
-            padding: 18px 30px;
+            padding: 20px 30px;
             border: none;
             background: none;
-            color: #666;
+            color: #8b949e;
             cursor: pointer;
-            font-weight: bold;
-            font-size: 13px;
-            letter-spacing: 2px;
+            font-weight: 600;
+            font-size: 12px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
             transition: 0.3s;
         }
 
         .tab-btn.active {
-            color: var(--neon-green);
-            border-bottom: 3px solid var(--neon-green);
-            text-shadow: 0 0 10px var(--neon-green);
+            color: var(--ui-teal);
+            border-bottom: 2px solid var(--ui-teal);
         }
 
-        /* Retro Visualizer Area */
-        #visualizer-area {
+        /* Visualizer */
+        #viz-container {
             position: relative;
-            height: 300px;
-            background: linear-gradient(to bottom, #050510, #1a0033);
-            border-bottom: 1px solid #333;
-            flex-shrink: 0;
+            height: 280px;
+            background: #010409;
+            border-bottom: 1px solid #30363d;
         }
 
         canvas {
@@ -69,8 +65,8 @@
             height: 100%;
         }
 
-        /* Main Content Studio */
-        .studio-content {
+        /* Studio Content */
+        .content {
             flex: 1;
             padding: 20px;
             overflow-y: auto;
@@ -90,71 +86,66 @@
             display: block;
         }
 
-        /* Dashboard Monitor */
+        /* Dashboard */
         .dashboard {
             display: flex;
             gap: 20px;
             width: 100%;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .monitor {
             background: var(--panel);
-            border-radius: 12px;
+            border-radius: 8px;
             padding: 20px;
             flex: 2;
             text-align: center;
-            border: 1px solid var(--neon-blue);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+            border: 1px solid #30363d;
         }
 
-        #chord-name {
-            font-size: 34px;
-            color: var(--neon-green);
-            font-weight: 800;
-            text-shadow: 0 0 10px var(--neon-green);
-            margin: 10px 0;
+        #note-name {
+            font-size: 32px;
+            color: var(--ui-teal);
+            font-weight: 700;
+            margin: 5px 0;
         }
 
         .record-panel {
-            background: rgba(40, 0, 40, 0.6);
-            border-radius: 12px;
+            background: rgba(255, 193, 7, 0.05);
+            border-radius: 8px;
             padding: 20px;
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            border: 1px solid var(--neon-pink);
+            border: 1px solid rgba(255, 193, 7, 0.2);
         }
 
         #rec-btn {
-            background: var(--neon-pink);
-            color: white;
+            background: var(--ui-amber);
+            color: #000;
             border: none;
             padding: 12px 25px;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
             width: 100%;
-            transition: 0.2s;
             text-transform: uppercase;
         }
 
         #rec-btn.recording {
             animation: pulse 1s infinite;
             background: #fff;
-            color: #000;
         }
 
-        /* Professional Keyboard */
+        /* Pro Keyboard */
         .keyboard-frame {
-            background: #111;
+            background: #010409;
             padding: 30px 15px;
-            border-radius: 15px;
-            border: 4px solid #333;
+            border-radius: 12px;
+            border: 1px solid #30363d;
             overflow-x: auto;
             width: 100%;
-            box-shadow: inset 0 0 50px #000;
         }
 
         .keys-container {
@@ -174,61 +165,70 @@
             font-weight: bold;
             user-select: none;
             transition: 0.1s;
+            border-radius: 0 0 4px 4px;
         }
 
         .key.white {
-            width: 42px;
-            height: 220px;
-            background: linear-gradient(to bottom, #eee 0%, #fff 90%, #ccc 100%);
-            color: #999;
-            border: 1px solid #bbb;
-            border-radius: 0 0 6px 6px;
+            width: 40px;
+            height: 210px;
+            background: #f0f6fc;
+            color: #8b949e;
+            border: 1px solid #d0d7de;
             z-index: 1;
         }
 
         .key.black {
-            width: 28px;
-            height: 130px;
-            background: linear-gradient(to bottom, #444 0%, #111 100%);
+            width: 26px;
+            height: 125px;
+            background: #161b22;
             color: #fff;
-            margin-left: -14px;
-            margin-right: -14px;
+            margin-left: -13px;
+            margin-right: -13px;
             z-index: 2;
-            border-radius: 0 0 4px 4px;
-            border: 1px solid #000;
+            border: 1px solid #010409;
         }
 
         .key.active {
-            background: var(--neon-green) !important;
+            background: var(--ui-teal) !important;
             color: #000 !important;
-            transform: translateY(4px);
-            box-shadow: 0 0 20px var(--neon-green);
+            transform: translateY(3px);
         }
 
-        /* Grids for Samples and Mixes */
+        /* Categorized Grid */
+        .category-title {
+            color: var(--ui-slate);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 30px 0 15px;
+            border-left: 3px solid var(--ui-teal);
+            padding-left: 10px;
+        }
+
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 15px;
+            gap: 12px;
         }
 
         .card {
             background: var(--panel);
-            border: 1px solid #333;
-            padding: 20px;
-            border-radius: 10px;
+            border: 1px solid #30363d;
+            padding: 15px;
+            border-radius: 6px;
             cursor: pointer;
             transition: 0.2s;
-            border-left: 5px solid var(--neon-blue);
+            border-left: 4px solid var(--ui-slate);
         }
 
         .card:hover {
-            border-color: var(--neon-green);
-            transform: translateY(-3px);
+            border-color: var(--ui-teal);
+            background: #1c2128;
         }
 
-        .card.user-card {
-            border-left-color: var(--neon-pink);
+        .card.playing {
+            border-left-color: var(--ui-amber);
+            background: #1c2128;
         }
 
         @keyframes pulse {
@@ -260,27 +260,26 @@
 <body>
 
     <nav>
-        <button class="tab-btn active" onclick="openTab(event, 'keyboard-tab')">STUDIO</button>
-        <button class="tab-btn" onclick="openTab(event, 'samples-tab')">SYSTEM SAMPLES (120)</button>
-        <button class="tab-btn" onclick="openTab(event, 'mix-tab')">USER MIX GALLERY</button>
+        <button class="tab-btn active" onclick="switchTab(event, 'kb-tab')">Keyboard Studio</button>
+        <button class="tab-btn" onclick="switchTab(event, 'sys-tab')">Tone Library</button>
+        <button class="tab-btn" onclick="switchTab(event, 'mix-tab')">Saved Masters</button>
     </nav>
 
-    <div id="visualizer-area">
-        <canvas id="retroCanvas"></canvas>
-    </div>
+    <div id="viz-container"><canvas id="canvas"></canvas></div>
 
-    <div class="studio-content">
-        <!-- Tab 1: Studio Keyboard -->
-        <div id="keyboard-tab" class="tab-pane active">
+    <div class="content">
+        <!-- TAB 1 -->
+        <div id="kb-tab" class="tab-pane active">
             <div class="dashboard">
                 <div class="monitor">
-                    <div style="font-size:11px; letter-spacing:3px; color:#555">GEMINI 3 RECOGNITION</div>
-                    <div id="chord-name">READY</div>
+                    <div style="font-size:10px; color:var(--ui-slate); letter-spacing:2px">HARMONIC INTELLIGENCE</div>
+                    <div id="note-name">STANDBY</div>
                 </div>
                 <div class="record-panel">
-                    <button id="rec-btn" onclick="toggleRecord()">START RECORDING</button>
-                    <div id="timer" style="margin-top:10px; color:var(--neon-pink); font-family:monospace;">10s LIMIT
-                    </div>
+                    <button id="rec-btn" onclick="toggleRecording()">Record Performance</button>
+                    <div id="timer"
+                        style="margin-top:10px; color:var(--ui-amber); font-size: 12px; font-family:monospace">20s MAX
+                        BUFFER</div>
                 </div>
             </div>
             <div class="keyboard-frame">
@@ -288,226 +287,229 @@
             </div>
         </div>
 
-        <!-- Tab 2: System Samples -->
-        <div id="samples-tab" class="tab-pane">
-            <h2 style="color:var(--neon-blue)">120 Rhythmic Motifs</h2>
-            <div class="grid" id="sample-grid"></div>
+        <!-- TAB 2 -->
+        <div id="sys-tab" class="tab-pane">
+            <div id="library-content"></div>
         </div>
 
-        <!-- Tab 3: User Mixes -->
+        <!-- TAB 3 -->
         <div id="mix-tab" class="tab-pane">
-            <h2 style="color:var(--neon-pink)">User Saved Tones</h2>
+            <div class="category-title">Personal Recordings</div>
             <div class="grid" id="mix-grid"></div>
         </div>
     </div>
 
     <script>
-        /** 
-         * 1. CORE AUDIO & SYNTH ENGINE
-         */
+        /** 1. AUDIO & SYNTH CORE **/
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
         const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-        const activeOscs = {};
-        const systemChords = {}; // For Logic Comparison
-        let isRecording = false;
-        let sessionEvents = [];
-        let recStartTime = 0;
+        const activeOscs = new Map();
+        const chordSignatures = {};
+        let sampleVoices = []; // Tracking active sample notes to kill them
+        let isRecording = false, recEvents = [], recStart = 0;
 
-        function startSound(midi, isAuto = false) {
-            if (activeOscs[midi] && !isAuto) return;
-            const freq = 440 * Math.pow(2, (midi - 69) / 12);
-            const g = audioCtx.createGain();
+        function play(midi, isAuto = false) {
+            if (activeOscs.has(midi) && !isAuto) return;
             const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
 
-            osc.type = 'triangle'; // Warm retro sound
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(440 * Math.pow(2, (midi - 69) / 12), audioCtx.currentTime);
             g.gain.setValueAtTime(0, audioCtx.currentTime);
-            g.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.03); // Fast attack
+            g.gain.linearRampToValueAtTime(0.25, audioCtx.currentTime + 0.04);
 
             osc.connect(g); g.connect(analyser); analyser.connect(audioCtx.destination);
             osc.start();
 
             if (!isAuto) {
-                activeOscs[midi] = { osc, g };
-                if (isRecording) sessionEvents.push({ time: Date.now() - recStartTime, midi, type: 'on' });
-                identifyChord();
+                activeOscs.set(midi, { osc, g });
+                if (isRecording) recEvents.push({ time: Date.now() - recStart, midi, type: 'on' });
+                analyze();
             }
             return { osc, g };
         }
 
-        function stopSound(midi) {
-            if (activeOscs[midi]) {
-                const { osc, g } = activeOscs[midi];
-                g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05); // Smooth Release
+        function stop(midi) {
+            if (activeOscs.has(midi)) {
+                const { osc, g } = activeOscs.get(midi);
+                g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.06);
                 setTimeout(() => osc.stop(), 200);
-                delete activeOscs[midi];
-                if (isRecording) sessionEvents.push({ time: Date.now() - recStartTime, midi, type: 'off' });
+                activeOscs.delete(midi);
+                if (isRecording) recEvents.push({ time: Date.now() - recStart, midi, type: 'off' });
+                analyze();
             }
         }
 
-        /** 
-         * 2. RETRO VISUALIZER (CASSETTE + MOUNTAINS)
-         */
-        const canvas = document.getElementById('retroCanvas');
-        const ctx = canvas.getContext('2d');
+        /** 2. RETRO VISUALIZER (CASSETTE + DISCRETE BARS) **/
+        const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
         let rotation = 0;
+        function drawVisualizer() {
+            requestAnimationFrame(drawVisualizer);
+            canvas.width = window.innerWidth; canvas.height = 280;
+            const fData = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(fData);
+            const vol = fData.reduce((a, b) => a + b) / fData.length;
 
-        function draw() {
-            requestAnimationFrame(draw);
-            canvas.width = window.innerWidth;
-            canvas.height = 300;
-            const data = new Uint8Array(analyser.frequencyBinCount);
-            analyser.getByteFrequencyData(data);
-            const volume = data.reduce((a, b) => a + b) / data.length;
+            ctx.fillStyle = "#010409"; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = "#050510";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Wireframe Grid
-            ctx.strokeStyle = "#1a1a3a";
-            ctx.lineWidth = 1;
-            for (let i = 0; i < canvas.width; i += 40) {
-                ctx.beginPath(); ctx.moveTo(i, 300); ctx.lineTo(i, 200); ctx.stroke();
+            // Discrete EQ Bars
+            const barCount = 40;
+            const barWidth = canvas.width / barCount;
+            for (let i = 0; i < barCount; i++) {
+                const h = (fData[i * 2] / 255) * 150;
+                // Blend Teal to Amber
+                ctx.fillStyle = i % 2 === 0 ? "#26C6DA" : "#FFC107";
+                ctx.globalAlpha = 0.3;
+                ctx.fillRect(i * barWidth, canvas.height - h, barWidth - 4, h);
             }
+            ctx.globalAlpha = 1.0;
 
-            // Cassette Drawing
-            const cx = canvas.width / 2;
-            const cy = 130;
-            ctx.strokeStyle = volume > 5 ? varColor('--neon-blue') : "#333";
-            ctx.lineWidth = 3;
-            ctx.strokeRect(cx - 140, cy - 70, 280, 140);
+            // Cassette Logic
+            const cx = canvas.width / 2, cy = 120;
+            ctx.strokeStyle = vol > 2 ? "#26C6DA" : "#30363d";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(cx - 120, cy - 60, 240, 120); // Body
 
-            // Spinning Reels
-            if (volume > 2) rotation += 0.05 + (volume / 50);
-            [cx - 60, cx + 60].forEach(x => {
-                ctx.beginPath(); ctx.arc(x, cy, 35, 0, Math.PI * 2); ctx.stroke();
+            if (vol > 1) rotation += 0.04 + (vol / 60);
+            [cx - 55, cx + 55].forEach(x => {
+                ctx.beginPath(); ctx.arc(x, cy, 30, 0, Math.PI * 2); ctx.stroke();
                 for (let i = 0; i < 6; i++) {
                     ctx.moveTo(x, cy);
-                    ctx.lineTo(x + Math.cos(rotation + i) * 30, cy + Math.sin(rotation + i) * 30);
+                    ctx.lineTo(x + Math.cos(rotation + i) * 25, cy + Math.sin(rotation + i) * 25);
                 }
                 ctx.stroke();
             });
         }
-        function varColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name); }
-        draw();
+        drawVisualizer();
 
-        /** 
-         * 3. KEYBOARD GENERATION
-         */
+        /** 3. PIANO UI **/
         const piano = document.getElementById('piano-keys');
         for (let i = 0; i < 64; i++) {
             const midi = 36 + i;
-            const note = noteNames[midi % 12];
-            const octave = Math.floor(midi / 12) - 1;
-            const label = note + octave;
-
+            const label = noteNames[midi % 12] + (Math.floor(midi / 12) - 1);
             const key = document.createElement('div');
-            key.className = `key ${note.includes('#') ? 'black' : 'white'}`;
+            key.className = `key ${label.includes('#') ? 'black' : 'white'}`;
             key.innerHTML = `<span>${label}</span>`;
             key.dataset.midi = midi;
 
-            const down = (e) => {
-                e.preventDefault(); if (audioCtx.state === 'suspended') audioCtx.resume();
-                key.classList.add('active'); startSound(midi);
-            };
-            const up = () => { key.classList.remove('active'); stopSound(midi); };
+            const d = (e) => { e.preventDefault(); if (audioCtx.state === 'suspended') audioCtx.resume(); key.classList.add('active'); play(midi); };
+            const u = () => { key.classList.remove('active'); stop(midi); };
 
-            key.onmousedown = down; key.onmouseup = up; key.onmouseleave = up;
-            key.ontouchstart = down; key.ontouchend = up;
+            key.onmousedown = d; key.onmouseup = u; key.onmouseleave = u;
+            key.ontouchstart = d; key.ontouchend = u;
             piano.appendChild(key);
         }
 
-        /** 
-         * 4. LOGIC: CHORD RECOGNITION & 120 SAMPLES
-         */
-        function identifyChord() {
-            const active = Object.keys(activeOscs).map(n => parseInt(n) % 12).sort((a, b) => a - b);
+        function analyze() {
+            const active = [...activeOscs.keys()].map(n => n % 12).sort((a, b) => a - b);
             const sig = [...new Set(active)].join(',');
-            const display = document.getElementById('chord-name');
-
-            if (systemChords[sig]) {
-                display.innerText = systemChords[sig];
-                display.style.color = "var(--neon-green)";
-            } else if (active.length > 0) {
-                display.innerText = "USER KEY NOTE";
-                display.style.color = "var(--neon-pink)";
+            const disp = document.getElementById('note-name');
+            if (chordSignatures[sig]) {
+                disp.innerText = chordSignatures[sig];
+                disp.style.color = "var(--ui-teal)";
             } else {
-                display.innerText = "READY";
+                disp.innerText = active.length > 0 ? "USER KEY NOTE" : "STANDBY";
+                disp.style.color = active.length > 0 ? "var(--ui-amber)" : "var(--ui-slate)";
             }
         }
 
-        function initSamples() {
-            const types = {
-                "Maj": [0, 4, 7], "Min": [0, 3, 7], "7th": [0, 4, 7, 10], "Maj7": [0, 4, 7, 11],
-                "Sus2": [0, 2, 7], "Sus4": [0, 5, 7], "Dim": [0, 3, 6], "Aug": [0, 4, 8],
-                "6th": [0, 4, 7, 9], "m7": [0, 3, 7, 10]
-            };
-            const grid = document.getElementById('sample-grid');
-            for (let r = 0; r < 12; r++) {
-                for (let t in types) {
-                    const name = noteNames[r] + " " + t;
-                    const sig = types[t].map(v => (r + v) % 12).sort((a, b) => a - b).join(',');
-                    systemChords[sig] = name; // Map for comparison logic
+        /** 4. CATEGORIZED SAMPLE LIBRARY **/
+        const libraryData = [
+            { cat: "Communication (Message Tones - 4s)", style: "Blip", len: 4, motifs: [0, 7, 12] },
+            { cat: "Communication (Message Tones - 4s)", style: "Alert", len: 4, motifs: [0, 4, 7] },
+            { cat: "Lifestyle (Ringtones - 20s)", style: "Vibe", len: 20, motifs: [0, 4, 7, 11, 14] },
+            { cat: "Functional (Banking/Shopping - 2s)", style: "Success", len: 2, motifs: [0, 5, 12] },
+            { cat: "Functional (Banking/Shopping - 2s)", style: "Error", len: 2, motifs: [0, 1] }
+        ];
+
+        function initLibrary() {
+            const container = document.getElementById('library-content');
+            const categories = {};
+
+            libraryData.forEach(template => {
+                if (!categories[template.cat]) {
+                    const section = document.createElement('div');
+                    section.innerHTML = `<div class="category-title">${template.cat}</div><div class="grid" id="grid-${template.cat.split(' ')[0]}"></div>`;
+                    container.appendChild(section);
+                    categories[template.cat] = document.getElementById(`grid-${template.cat.split(' ')[0]}`);
+                }
+
+                // Generate 12 keys for each template
+                for (let r = 0; r < 12; r++) {
+                    const name = `${noteNames[r]} ${template.style}`;
+                    const sig = template.motifs.map(v => (r + v) % 12).sort((a, b) => a - b).join(',');
+                    chordSignatures[sig] = name;
 
                     const card = document.createElement('div');
                     card.className = 'card';
-                    card.innerHTML = `<strong>${name}</strong><br><small>10s System Motif</small>`;
-                    card.onclick = () => {
-                        types[t].forEach((v, i) => {
-                            setTimeout(() => {
-                                const s = startSound(r + 48 + v, true);
-                                setTimeout(() => s.g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1), 2000);
-                            }, i * 250);
-                        });
-                    };
-                    grid.appendChild(card);
+                    card.innerHTML = `<strong>${name}</strong><br><small>${template.len}s Motif</small>`;
+                    card.onclick = () => playSample(r + 48, template.motifs, template.len, card);
+                    categories[template.cat].appendChild(card);
                 }
-            }
+            });
         }
 
-        /** 
-         * 5. RECORDING & PERSISTENCE
-         */
-        function toggleRecord() {
+        function playSample(root, motifs, seconds, cardEl) {
+            // Kill existing sample audio
+            sampleVoices.forEach(v => {
+                v.g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
+                setTimeout(() => v.osc.stop(), 200);
+            });
+            sampleVoices = [];
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('playing'));
+            cardEl.classList.add('playing');
+
+            motifs.forEach((v, i) => {
+                setTimeout(() => {
+                    const s = play(root + v, true);
+                    sampleVoices.push(s);
+                    // Dynamic sustain based on seconds
+                    setTimeout(() => {
+                        s.g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.2);
+                    }, seconds * 800);
+                }, i * 200);
+            });
+        }
+
+        /** 5. PERFORMANCE RECORDING **/
+        function toggleRecording() {
             if (!isRecording) {
-                isRecording = true; recStartTime = Date.now(); sessionEvents = [];
-                document.getElementById('rec-btn').innerText = "STOP & SAVE";
+                isRecording = true; recStart = Date.now(); recEvents = [];
+                document.getElementById('rec-btn').innerText = "SAVE PERFORMANCE";
                 document.getElementById('rec-btn').classList.add('recording');
-                setTimeout(() => { if (isRecording) toggleRecord(); }, 10000);
+                setTimeout(() => { if (isRecording) toggleRecording(); }, 20000); // 20s Max
             } else {
                 isRecording = false;
-                document.getElementById('rec-btn').innerText = "START RECORDING";
+                document.getElementById('rec-btn').innerText = "Record Performance";
                 document.getElementById('rec-btn').classList.remove('recording');
-                if (sessionEvents.length > 0) {
-                    const saved = JSON.parse(localStorage.getItem('gemini_retro_db') || '[]');
-                    saved.push({ id: Date.now(), data: sessionEvents });
-                    localStorage.setItem('gemini_retro_db', JSON.stringify(saved));
-                    loadUserMixes();
+                if (recEvents.length > 0) {
+                    const saved = JSON.parse(localStorage.getItem('studio_masters') || '[]');
+                    saved.push({ id: new Date().getTime(), data: recEvents });
+                    localStorage.setItem('studio_masters', JSON.stringify(saved));
+                    renderMixes();
                 }
             }
         }
 
-        function loadUserMixes() {
+        function renderMixes() {
             const grid = document.getElementById('mix-grid');
-            const saved = JSON.parse(localStorage.getItem('gemini_retro_db') || '[]');
-            grid.innerHTML = saved.length === 0 ? '<p style="color:#444">No recordings yet.</p>' : '';
+            const saved = JSON.parse(localStorage.getItem('studio_masters') || '[]');
+            grid.innerHTML = saved.length === 0 ? '<p style="color:#444; padding:20px;">No master recordings found.</p>' : '';
             saved.forEach(mix => {
                 const card = document.createElement('div');
-                card.className = 'card user-card';
-                card.innerHTML = `<strong>Mix #${mix.id.toString().slice(-4)}</strong><br><small>User Discovery</small>`;
+                card.className = 'card';
+                card.innerHTML = `<strong>Session #${mix.id.toString().slice(-4)}</strong><br><small>Studio Master</small>`;
                 card.onclick = () => {
                     const replayVoices = {};
                     mix.data.forEach(e => {
                         setTimeout(() => {
                             if (e.type === 'on') {
-                                const v = startSound(e.midi, true);
-                                replayVoices[e.midi] = v;
+                                const v = play(e.midi, true); replayVoices[e.midi] = v;
                                 document.querySelector(`[data-midi="${e.midi}"]`)?.classList.add('active');
-                            } else {
-                                if (replayVoices[e.midi]) {
-                                    replayVoices[e.midi].g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
-                                }
+                            } else if (replayVoices[e.midi]) {
+                                replayVoices[e.midi].g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
                                 document.querySelector(`[data-midi="${e.midi}"]`)?.classList.remove('active');
                             }
                         }, e.time);
@@ -517,15 +519,14 @@
             });
         }
 
-        function openTab(e, id) {
+        function switchTab(e, id) {
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            e.currentTarget.classList.add('active');
+            document.getElementById(id).classList.add('active'); e.currentTarget.classList.add('active');
         }
 
-        initSamples();
-        loadUserMixes();
+        initLibrary();
+        renderMixes();
     </script>
 </body>
 
