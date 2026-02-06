@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini 3 Pro - Retro Cassette Studio</title>
+    <title>Gemini 3 Pro - Clean Music Studio</title>
     <style>
         :root {
             --neon-green: #00e676;
             --neon-pink: #ff00ff;
             --neon-blue: #00d4ff;
-            --bg: #050510;
-            --panel: rgba(20, 20, 35, 0.95);
+            --bg: #0a0a0f;
+            --panel: #16161d;
         }
 
         body {
@@ -22,25 +22,24 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
-            overflow: hidden;
         }
 
+        /* Navigation */
         nav {
             background: #000;
             display: flex;
             justify-content: center;
             border-bottom: 2px solid var(--neon-blue);
-            z-index: 100;
         }
 
         .tab-btn {
-            padding: 18px 25px;
+            padding: 20px 30px;
             border: none;
             background: none;
             color: #666;
             cursor: pointer;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 13px;
             letter-spacing: 2px;
             transition: 0.3s;
         }
@@ -48,26 +47,12 @@
         .tab-btn.active {
             color: var(--neon-green);
             border-bottom: 3px solid var(--neon-green);
-            text-shadow: 0 0 10px var(--neon-green);
         }
 
-        /* Visualizer Area */
-        #viz-container {
-            position: relative;
-            height: 300px;
-            background: linear-gradient(to bottom, #050510, #150025);
-            border-bottom: 1px solid #333;
-        }
-
-        canvas {
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Monitor & Controls */
+        /* Content Areas */
         .studio-content {
             flex: 1;
-            padding: 20px;
+            padding: 25px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
@@ -78,40 +63,38 @@
             display: none;
             width: 100%;
             max-width: 1100px;
-            animation: fadeIn 0.4s ease;
         }
 
         .tab-pane.active {
             display: block;
         }
 
+        /* Dashboard Monitor */
         .dashboard {
             display: flex;
             gap: 20px;
             width: 100%;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
 
         .monitor {
             background: var(--panel);
             border-radius: 12px;
-            padding: 20px;
+            padding: 25px;
             flex: 2;
             text-align: center;
-            border: 1px solid var(--neon-blue);
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+            border: 1px solid #333;
         }
 
         #note-display {
-            font-size: 32px;
+            font-size: 36px;
             color: var(--neon-green);
             font-weight: 800;
             text-shadow: 0 0 10px var(--neon-green);
-            margin: 5px 0;
         }
 
         .record-panel {
-            background: rgba(40, 0, 40, 0.6);
+            background: #1a0d1a;
             border-radius: 12px;
             padding: 20px;
             flex: 1;
@@ -130,24 +113,22 @@
             cursor: pointer;
             font-weight: bold;
             width: 100%;
-            text-transform: uppercase;
         }
 
         #rec-btn.recording {
-            animation: pulse 1s infinite;
             background: #fff;
             color: #000;
+            animation: pulse 1s infinite;
         }
 
-        /* Keyboard */
-        .piano-frame {
-            background: #111;
-            padding: 25px 15px;
-            border-radius: 12px;
+        /* Pro Keyboard */
+        .keyboard-frame {
+            background: #000;
+            padding: 30px 15px;
+            border-radius: 15px;
             border: 4px solid #333;
             overflow-x: auto;
             width: 100%;
-            box-shadow: inset 0 0 50px #000;
         }
 
         .keys-container {
@@ -165,29 +146,28 @@
             padding-bottom: 15px;
             font-size: 10px;
             font-weight: bold;
-            user-select: none;
+            border-radius: 0 0 5px 5px;
             transition: 0.1s;
+            user-select: none;
         }
 
         .key.white {
-            width: 40px;
-            height: 200px;
-            background: linear-gradient(to bottom, #eee, #fff 90%, #ccc);
-            color: #888;
+            width: 42px;
+            height: 220px;
+            background: linear-gradient(#eee, #fff 90%, #ccc);
+            color: #999;
             border: 1px solid #bbb;
-            border-radius: 0 0 6px 6px;
             z-index: 1;
         }
 
         .key.black {
-            width: 26px;
-            height: 120px;
-            background: linear-gradient(to bottom, #444, #111);
+            width: 28px;
+            height: 130px;
+            background: linear-gradient(#444, #111);
             color: #fff;
-            margin-left: -13px;
-            margin-right: -13px;
+            margin-left: -14px;
+            margin-right: -14px;
             z-index: 2;
-            border-radius: 0 0 4px 4px;
             border: 1px solid #000;
         }
 
@@ -195,28 +175,27 @@
             background: var(--neon-green) !important;
             color: #000 !important;
             transform: translateY(4px);
-            box-shadow: 0 0 20px var(--neon-green);
         }
 
-        /* Cards */
+        /* Grids */
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 15px;
         }
 
         .card {
             background: var(--panel);
             border: 1px solid #333;
-            padding: 15px;
-            border-radius: 8px;
+            padding: 20px;
+            border-radius: 10px;
             cursor: pointer;
             border-left: 5px solid var(--neon-blue);
         }
 
         .card:hover {
             border-color: var(--neon-green);
-            transform: translateY(-3px);
+            background: #222;
         }
 
         .card.user {
@@ -236,84 +215,71 @@
                 opacity: 1;
             }
         }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
     </style>
 </head>
 
 <body>
 
     <nav>
-        <button class="tab-btn active" onclick="setTab(event, 'kb-tab')">STUDIO</button>
-        <button class="tab-btn" onclick="setTab(event, 'sys-tab')">SYSTEM FILES (120)</button>
-        <button class="tab-btn" onclick="setTab(event, 'mix-tab')">USER MIX GALLERY</button>
+        <button class="tab-btn active" onclick="switchTab(event, 'kb-tab')">STUDIO</button>
+        <button class="tab-btn" onclick="switchTab(event, 'sys-tab')">SYSTEM FILES (120)</button>
+        <button class="tab-btn" onclick="switchTab(event, 'mix-tab')">USER MIX GALLERY</button>
     </nav>
 
-    <div id="viz-container"><canvas id="canvas"></canvas></div>
-
     <div class="studio-content">
+        <!-- Tab 1: Studio -->
         <div id="kb-tab" class="tab-pane active">
             <div class="dashboard">
                 <div class="monitor">
-                    <div style="font-size:10px; color:#555; letter-spacing:2px">GEMINI 3 RECOGNITION</div>
+                    <div style="font-size:11px; color:#555; letter-spacing:2px">GEMINI 3 ENGINE</div>
                     <div id="note-display">READY</div>
                 </div>
                 <div class="record-panel">
-                    <button id="rec-btn" onclick="toggleRec()">START RECORDING</button>
+                    <button id="rec-btn" onclick="toggleRecord()">START RECORDING</button>
                     <div id="timer" style="margin-top:10px; color:var(--neon-pink); font-family:monospace">10s LIMIT
                     </div>
                 </div>
             </div>
-            <div class="piano-frame">
+            <div class="keyboard-frame">
                 <div class="keys-container" id="piano-keys"></div>
             </div>
         </div>
 
+        <!-- Tab 2: System Samples -->
         <div id="sys-tab" class="tab-pane">
-            <h3 style="color:var(--neon-blue)">120 Musical Motifs</h3>
+            <h2 style="color:var(--neon-blue)">Programmed Chord Library</h2>
             <div class="grid" id="sys-grid"></div>
         </div>
 
+        <!-- Tab 3: User Gallery -->
         <div id="mix-tab" class="tab-pane">
-            <h3 style="color:var(--neon-pink)">My Saved Mixes</h3>
+            <h2 style="color:var(--neon-pink)">My Saved Mixes</h2>
             <div class="grid" id="mix-grid"></div>
         </div>
     </div>
 
     <script>
-        /** 1. AUDIO ENGINE **/
+        /** 1. AUDIO CORE **/
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const analyser = audioCtx.createAnalyser();
         const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
         const activeOscs = new Map();
         const chordLib = {};
-        let isRecording = false, events = [], recStart = 0;
+        let isRecording = false, recData = [], recStart = 0;
 
         function play(midi, isAuto = false) {
             if (activeOscs.has(midi) && !isAuto) return;
-            const freq = 440 * Math.pow(2, (midi - 69) / 12);
             const osc = audioCtx.createOscillator();
             const g = audioCtx.createGain();
-
             osc.type = 'triangle';
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(440 * Math.pow(2, (midi - 69) / 12), audioCtx.currentTime);
             g.gain.setValueAtTime(0, audioCtx.currentTime);
             g.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.03);
-
-            osc.connect(g); g.connect(analyser); analyser.connect(audioCtx.destination);
+            osc.connect(g); g.connect(audioCtx.destination);
             osc.start();
 
             if (!isAuto) {
                 activeOscs.set(midi, { osc, g });
-                if (isRecording) events.push({ time: Date.now() - recStart, midi, type: 'on' });
+                if (isRecording) recData.push({ time: Date.now() - recStart, midi, type: 'on' });
                 identify();
             }
             return { osc, g };
@@ -322,51 +288,15 @@
         function stop(midi) {
             if (activeOscs.has(midi)) {
                 const { osc, g } = activeOscs.get(midi);
-                g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1);
-                setTimeout(() => osc.stop(), 120);
+                g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+                setTimeout(() => osc.stop(), 150);
                 activeOscs.delete(midi);
-                if (isRecording) events.push({ time: Date.now() - recStart, midi, type: 'off' });
+                if (isRecording) recData.push({ time: Date.now() - recStart, midi, type: 'off' });
                 identify();
             }
         }
 
-        /** 2. RETRO VISUALIZER **/
-        const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
-        let rot = 0;
-        function draw() {
-            requestAnimationFrame(draw);
-            canvas.width = window.innerWidth; canvas.height = 300;
-            const data = new Uint8Array(analyser.frequencyBinCount);
-            analyser.getByteFrequencyData(data);
-            const vol = data.reduce((a, b) => a + b) / data.length;
-
-            ctx.fillStyle = "#050510"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Wireframe Grid
-            ctx.strokeStyle = "#1a1a3a"; ctx.lineWidth = 1;
-            for (let i = 0; i < canvas.width; i += 40) {
-                ctx.beginPath(); ctx.moveTo(i, 300); ctx.lineTo(i, 200); ctx.stroke();
-            }
-
-            // Cassette Drawing
-            const cx = canvas.width / 2, cy = 130;
-            ctx.strokeStyle = vol > 5 ? "#00d4ff" : "#333"; ctx.lineWidth = 3;
-            ctx.strokeRect(cx - 140, cy - 70, 280, 140);
-
-            if (vol > 2) rot += 0.05 + (vol / 50);
-            [cx - 60, cx + 60].forEach(x => {
-                ctx.beginPath(); ctx.arc(x, cy, 35, 0, Math.PI * 2); ctx.stroke();
-                for (let i = 0; i < 6; i++) {
-                    ctx.moveTo(x, cy);
-                    ctx.lineTo(x + Math.cos(rot + i) * 30, x + Math.sin(rot + i) * 30); // Not using x here, using cy for Y
-                    ctx.lineTo(x + Math.cos(rot + i) * 30, cy + Math.sin(rot + i) * 30);
-                }
-                ctx.stroke();
-            });
-        }
-        draw();
-
-        /** 3. PIANO UI & LOGIC **/
+        /** 2. KEYBOARD GEN **/
         const piano = document.getElementById('piano-keys');
         for (let i = 0; i < 64; i++) {
             const midi = 36 + i;
@@ -384,15 +314,21 @@
             piano.appendChild(key);
         }
 
+        /** 3. LOGIC: IDENTIFY CHORDS **/
         function identify() {
             const active = [...activeOscs.keys()].map(n => n % 12).sort((a, b) => a - b);
             const sig = [...new Set(active)].join(',');
             const disp = document.getElementById('note-display');
-            disp.innerText = chordLib[sig] || (active.length > 0 ? "USER KEY NOTE" : "READY");
-            disp.style.color = chordLib[sig] ? "var(--neon-green)" : "var(--neon-pink)";
+            if (chordLib[sig]) {
+                disp.innerText = chordLib[sig];
+                disp.style.color = "var(--neon-green)";
+            } else {
+                disp.innerText = active.length > 0 ? "USER KEY NOTE" : "READY";
+                disp.style.color = "var(--neon-pink)";
+            }
         }
 
-        /** 4. SAMPLES (120 FILES) **/
+        /** 4. SAMPLES (120 PROGRAMMED) **/
         function initSamples() {
             const types = { "Maj": [0, 4, 7], "Min": [0, 3, 7], "7th": [0, 4, 7, 10], "Maj7": [0, 4, 7, 11], "Sus2": [0, 2, 7], "Sus4": [0, 5, 7], "Dim": [0, 3, 6], "Aug": [0, 4, 8], "6th": [0, 4, 7, 9], "m7": [0, 3, 7, 10] };
             const grid = document.getElementById('sys-grid');
@@ -403,13 +339,13 @@
                     chordLib[sig] = name;
                     const card = document.createElement('div');
                     card.className = 'card';
-                    card.innerHTML = `<strong>${name}</strong><br><small>System Tone</small>`;
+                    card.innerHTML = `<strong>${name}</strong><br><small>10s Pattern</small>`;
                     card.onclick = () => {
                         types[t].forEach((v, i) => {
                             setTimeout(() => {
                                 const s = play(r + 48 + v, true);
-                                setTimeout(() => s.g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1), 1500);
-                            }, i * 250);
+                                setTimeout(() => s.g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1), 2000);
+                            }, i * 200);
                         });
                     };
                     grid.appendChild(card);
@@ -418,20 +354,20 @@
         }
 
         /** 5. RECORDING & TABS **/
-        function toggleRec() {
+        function toggleRecord() {
             if (!isRecording) {
-                isRecording = true; recStart = Date.now(); events = [];
+                isRecording = true; recStart = Date.now(); recData = [];
                 document.getElementById('rec-btn').innerText = "STOP & SAVE";
                 document.getElementById('rec-btn').classList.add('recording');
-                setTimeout(() => { if (isRecording) toggleRec(); }, 10000);
+                setTimeout(() => { if (isRecording) toggleRecord(); }, 10000);
             } else {
                 isRecording = false;
                 document.getElementById('rec-btn').innerText = "START RECORDING";
                 document.getElementById('rec-btn').classList.remove('recording');
-                if (events.length > 0) {
-                    const saved = JSON.parse(localStorage.getItem('mixes') || '[]');
-                    saved.push({ id: Date.now(), data: events });
-                    localStorage.setItem('mixes', JSON.stringify(saved));
+                if (recData.length > 0) {
+                    const saved = JSON.parse(localStorage.getItem('gemini_mixes') || '[]');
+                    saved.push({ id: Date.now(), data: recData });
+                    localStorage.setItem('gemini_mixes', JSON.stringify(saved));
                     renderMixes();
                 }
             }
@@ -439,12 +375,12 @@
 
         function renderMixes() {
             const grid = document.getElementById('mix-grid');
-            const saved = JSON.parse(localStorage.getItem('mixes') || '[]');
+            const saved = JSON.parse(localStorage.getItem('gemini_mixes') || '[]');
             grid.innerHTML = saved.length === 0 ? '<p style="color:#444">No recordings yet.</p>' : '';
             saved.forEach(mix => {
                 const card = document.createElement('div');
                 card.className = 'card user';
-                card.innerHTML = `<strong>Mix #${mix.id.toString().slice(-4)}</strong><br><small>User Performance</small>`;
+                card.innerHTML = `<strong>Mix #${mix.id.toString().slice(-4)}</strong><br><small>Saved Performance</small>`;
                 card.onclick = () => {
                     const voices = {};
                     mix.data.forEach(e => {
@@ -463,7 +399,7 @@
             });
         }
 
-        function setTab(e, id) {
+        function switchTab(e, id) {
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.add('active'); e.currentTarget.classList.add('active');
