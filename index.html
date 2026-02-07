@@ -4,27 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Studio Blue Pro</title>
+    <title>Aura Studio Pro</title>
+    <!-- Favicon: Blue Guitar -->
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22 fill=%22%2300A3FF%22>🎸</text></svg>">
+
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" type="image/svg+xml"
-        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🎸</text><text x=%2230%22 y=%22.9em%22 font-size=%2270%22>🥁</text></svg>">
+
     <style>
-        /* --- ALL CSS STYLES INTEGRATED HERE --- */
         @import url('https://fonts.googleapis.com/css2?family=Indie+Flower&family=Inter:wght@400;900&display=swap');
 
         :root {
             --studio-blue: #00A3FF;
-            --ui-amber: #FFC107;
             --bg: #05070A;
             --card-bg: #111418;
-            --text-main: #FFFFFF;
             --text-dim: #8B949E;
         }
 
         body {
             background: var(--bg);
-            color: var(--text-main);
+            color: white;
             font-family: 'Inter', sans-serif;
             margin: 0;
             display: flex;
@@ -40,6 +40,7 @@
             align-items: center;
             justify-content: space-between;
             border-bottom: 2px solid var(--studio-blue);
+            z-index: 1000;
         }
 
         .brand {
@@ -47,13 +48,6 @@
             align-items: center;
             gap: 12px;
             color: var(--studio-blue);
-        }
-
-        .brand i {
-            background: var(--studio-blue);
-            color: white;
-            padding: 10px;
-            border-radius: 12px;
         }
 
         .search-box {
@@ -78,6 +72,29 @@
             color: #555;
         }
 
+        #rec-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #pause-btn {
+            background: #FFC107;
+            color: black;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            margin-left: 10px;
+        }
+
+        /* Navigation - Hidden on Studio Tab via Logic */
         nav {
             background: #000;
             display: flex;
@@ -101,32 +118,6 @@
             border-bottom: 3px solid var(--studio-blue);
         }
 
-        .ribbon {
-            background: #080A0C;
-            padding: 15px 40px;
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            white-space: nowrap;
-        }
-
-        .genre-chip {
-            padding: 8px 18px;
-            background: #161B22;
-            border-radius: 20px;
-            font-size: 11px;
-            cursor: pointer;
-            border: 1px solid #333;
-            color: var(--text-dim);
-        }
-
-        .genre-chip.active {
-            background: var(--studio-blue);
-            color: black;
-            font-weight: bold;
-            border-color: var(--studio-blue);
-        }
-
         .viewport {
             flex: 1;
             padding: 30px;
@@ -136,12 +127,22 @@
         .tab-pane {
             display: none;
             width: 100%;
-            max-width: 1300px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
         .tab-pane.active {
             display: block;
+        }
+
+        /* Home Page Onboarding */
+        .welcome-box {
+            background: rgba(0, 163, 255, 0.1);
+            border: 1px dashed var(--studio-blue);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            text-align: center;
         }
 
         .monitor {
@@ -183,6 +184,7 @@
             font-size: 10px;
             font-weight: bold;
             border-radius: 0 0 5px 5px;
+            user-select: none;
         }
 
         .key.white {
@@ -209,6 +211,7 @@
             color: white !important;
         }
 
+        /* Library & Cards */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -220,12 +223,6 @@
             border: 1px solid #222;
             border-radius: 15px;
             padding: 20px;
-            transition: 0.3s;
-        }
-
-        .tone-card:hover {
-            border-color: var(--studio-blue);
-            transform: translateY(-5px);
         }
 
         .card-top {
@@ -259,44 +256,13 @@
             background: var(--studio-blue);
             border: none;
             color: black;
-            width: 35px;
-            height: 35px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             cursor: pointer;
         }
 
-        .tool-btn {
-            background: none;
-            border: none;
-            color: #555;
-            cursor: pointer;
-            font-size: 14px;
-            transition: 0.2s;
-        }
-
-        .tool-btn:hover {
-            color: var(--studio-blue);
-        }
-
-        /* Search Highlights */
-        .search-box input::placeholder {
-            color: #444;
-            font-style: italic;
-        }
-
-        /* Category Headers in Library */
-        .lib-section-title {
-            grid-column: 1 / -1;
-            color: var(--studio-blue);
-            font-size: 14px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-top: 30px;
-            border-bottom: 1px solid #222;
-            padding-bottom: 10px;
-        }
-
-        /* Sticky Notes */
+        /* Sticky Notes (2 Lines -> Expanded) */
         .sticky-board {
             display: flex;
             flex-wrap: wrap;
@@ -307,54 +273,55 @@
 
         .sticky-note {
             width: 260px;
-            min-height: 260px;
-            padding: 25px;
+            min-height: 150px;
+            padding: 20px;
             position: relative;
             cursor: pointer;
             box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
             transition: 0.4s;
+            overflow: hidden;
         }
 
         .sticky-note.green {
             background: #c3f0bb;
-            transform: rotate(-2deg);
             color: #2d4d2a;
         }
 
         .sticky-note.yellow {
             background: #fff9b1;
-            transform: rotate(3deg);
             color: #5d5a2b;
-        }
-
-        .sticky-note.expanded {
-            width: 500px;
-            min-height: 400px;
-            transform: rotate(0deg);
-            z-index: 100;
         }
 
         .note-heading {
             font-weight: 900;
             text-transform: uppercase;
-            border-bottom: 1px dashed rgba(0, 0, 0, 0.2);
-            padding-bottom: 5px;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .note-content {
             font-family: 'Indie Flower', cursive;
-            font-size: 20px;
-            display: none;
+            font-size: 19px;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .sticky-note.expanded {
+            width: 500px;
+            min-height: 300px;
+            z-index: 100;
         }
 
         .sticky-note.expanded .note-content {
             display: block;
+            -webkit-line-clamp: unset;
         }
 
         .pin {
-            width: 14px;
-            height: 14px;
+            width: 12px;
+            height: 12px;
             background: #ff5252;
             border-radius: 50%;
             position: absolute;
@@ -362,262 +329,103 @@
             left: 50%;
             transform: translateX(-50%);
         }
+
+        .ribbon {
+            background: #080A0C;
+            padding: 15px 40px;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            white-space: nowrap;
+            margin-bottom: 20px;
+        }
+
+        .genre-chip {
+            padding: 8px 18px;
+            background: #161B22;
+            border-radius: 20px;
+            font-size: 11px;
+            cursor: pointer;
+            border: 1px solid #333;
+            color: var(--text-dim);
+        }
+
+        .genre-chip.active {
+            background: var(--studio-blue);
+            color: black;
+            font-weight: bold;
+        }
     </style>
 </head>
 
 <body>
 
     <header>
-        <!-- Clickable Brand: Aura Studio -->
         <div class="brand" onclick="window.location.reload()" style="cursor:pointer">
             <i class="fa-solid fa-guitar"></i>
             <h2 style="margin:0">Aura <span style="color:white">Studio</span></h2>
         </div>
         <div class="search-box">
             <i class="fa fa-search"></i>
-            <input type="text" id="search-box" placeholder="Search 120+ tones..." onkeyup="runSearch()">
+            <input type="text" id="search-box" placeholder="Search across library..." onkeyup="runGlobalSearch()">
         </div>
-        <button id="rec-btn" onclick="handleRecording()"
-            style="background:red; color:white; border:none; padding:10px 20px; border-radius:20px; font-weight:bold; cursor:pointer;">REC</button>
+        <div style="display:flex; align-items:center;">
+            <button id="rec-btn" onclick="handleRecording()">REC</button>
+            <button id="pause-btn" onclick="togglePauseRec()">PAUSE</button>
+        </div>
     </header>
 
-    <!-- Move Nav here (Outside of viewport) -->
-    <nav>
-        <button class="tab-btn active" onclick="navTo(event, 'pane-studio')">Studio</button>
+    <nav id="main-nav" style="display:none;">
+        <button class="tab-btn active" id="tab-studio" onclick="navTo(event, 'pane-studio')">Studio</button>
         <button class="tab-btn" onclick="navTo(event, 'pane-library')">Library</button>
         <button class="tab-btn" onclick="navTo(event, 'pane-user')">User Tones</button>
         <button class="tab-btn" onclick="navTo(event, 'pane-manual')">Manual</button>
     </nav>
 
-    <div class="ribbon">
-        <div class="genre-chip active" onclick="filterByGenre('All')">All Tones</div>
-        <div class="genre-chip" onclick="filterByGenre('Gaming Classics')">Gaming</div>
-        <div class="genre-chip" onclick="filterByGenre('Viral Pop Snippets')">Viral Pop</div>
-        <div class="genre-chip" onclick="filterByGenre('ASMR & Nature')">ASMR</div>
-        <div class="genre-chip" onclick="filterByGenre('Minimalist UI')">UI & Apps</div>
-    </div>
-
-    <div class="welcome-box"
-        style="background: rgba(0, 163, 255, 0.1); border: 1px dashed var(--studio-blue); padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
-        <h3 style="margin:0 0 10px 0; color:var(--studio-blue)">Design your own signature keyboard sound.</h3>
-        <p style="margin:0; color:#888; font-size:14px;">Use the keys below to compose. Click the <strong
-                style="color:red">REC</strong> button to start. Your creations will appear in the <strong>User
-                Tones</strong> tab automatically.</p>
-    </div>
     <div class="viewport">
+        <!-- STUDIO TAB -->
         <div id="pane-studio" class="tab-pane active">
+            <div class="welcome-box">
+                <h3>Design your own signature sound.</h3>
+                <p>Play the keys below. Click <strong style="color:red">REC</strong> to start. Saved files appear in
+                    <strong>User Tones</strong>.</p>
+                <button onclick="navTo(null, 'pane-library')"
+                    style="margin-top:15px; background:var(--studio-blue); border:none; padding:8px 20px; border-radius:5px; cursor:pointer; font-weight:bold;">Explore
+                    Library</button>
+            </div>
             <div class="monitor">
-                <div id="note-display">Ready to Compose</div>
+                <div id="note-display">Ready</div>
             </div>
             <div class="keyboard-wrap">
                 <div class="keys" id="piano-keys"></div>
             </div>
         </div>
+
+        <!-- LIBRARY TAB -->
         <div id="pane-library" class="tab-pane">
+            <div class="ribbon">
+                <div class="genre-chip active" onclick="filterByGenre('All')">All Tones</div>
+                <div class="genre-chip" onclick="filterByGenre('Gaming Classics')">Gaming</div>
+                <div class="genre-chip" onclick="filterByGenre('Viral Pop Snippets')">Viral Pop</div>
+                <div class="genre-chip" onclick="filterByGenre('ASMR & Nature')">ASMR</div>
+                <div class="genre-chip" onclick="filterByGenre('Minimalist UI')">UI & Apps</div>
+            </div>
             <div class="grid" id="lib-grid"></div>
         </div>
+
+        <!-- USER TONES TAB -->
         <div id="pane-user" class="tab-pane">
             <div class="grid" id="user-grid"></div>
         </div>
+
+        <!-- MANUAL TAB -->
         <div id="pane-manual" class="tab-pane">
-            <div class="sticky-board">
-                <div class="sticky-note green" onclick="toggleNote(this)">
-                    <div class="pin"></div>
-                    <h3 class="note-heading">The Vision</h3>
-                    <p class="note-content">Studio Blue is designed to capture musical "happy accidents." Record your
-                        soul's signatures instantly.</p>
-                </div>
-                <div class="sticky-note yellow" onclick="toggleNote(this)">
-                    <div class="pin"></div>
-                    <h3 class="note-heading">PWA Tech</h3>
-                    <p class="note-content">Works offline. Install it as an app on your phone via the share/browser
-                        menu!</p>
-                </div>
-                <div class="sticky-note green" onclick="toggleNote(this)">
-                    <div class="pin"></div>
-                    <h3 class="note-heading">Usage</h3>
-                    <p class="note-content">Play the keys to compose. Hit REC to save a master. Explore the library for
-                        inspiration.</p>
-                </div>
-            </div>
+            <div class="sticky-board" id="manual-board"></div>
         </div>
     </div>
 
-    <!-- DATA SOURCE -->
     <script src="tones.js"></script>
-
-    <script>
-        /* --- ALL LOGIC INTEGRATED HERE --- */
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-        const activeOscs = new Map();
-        let sampleVoices = [];
-        let isRecording = false, recData = [], recStart = 0;
-
-        function playNote(midi, isAuto = false, dur = 1.5) {
-            if (activeOscs.has(midi) && !isAuto) return;
-            const osc = audioCtx.createOscillator();
-            const g = audioCtx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(440 * Math.pow(2, (midi - 69) / 12), audioCtx.currentTime);
-            g.gain.setValueAtTime(0, audioCtx.currentTime);
-            g.gain.linearRampToValueAtTime(0.25, audioCtx.currentTime + 0.05);
-            osc.connect(g); g.connect(audioCtx.destination);
-            osc.start();
-            if (!isAuto) {
-                activeOscs.set(midi, { osc, g });
-                if (isRecording) recData.push({ time: Date.now() - recStart, midi, type: 'on' });
-            } else {
-                setTimeout(() => { g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1); setTimeout(() => osc.stop(), 200); }, dur * 1000);
-                return { osc, g };
-            }
-        }
-
-        function stopNote(midi) {
-            if (activeOscs.has(midi)) {
-                const { osc, g } = activeOscs.get(midi);
-                g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
-                setTimeout(() => osc.stop(), 200);
-                activeOscs.delete(midi);
-                if (isRecording) recData.push({ time: Date.now() - recStart, midi, type: 'off' });
-            }
-        }
-
-        const piano = document.getElementById('piano-keys');
-        for (let i = 0; i < 64; i++) {
-            const midi = 36 + i;
-            const label = noteNames[midi % 12] + (Math.floor(midi / 12) - 1);
-            const key = document.createElement('div');
-            key.className = `key ${label.includes('#') ? 'black' : 'white'}`;
-            key.innerHTML = `<span>${label}</span>`;
-            key.dataset.midi = midi;
-            key.onmousedown = (e) => { e.preventDefault(); if (audioCtx.state === 'suspended') audioCtx.resume(); key.classList.add('active'); playNote(midi); document.getElementById('note-display').innerText = label; };
-            key.onmouseup = () => { key.classList.remove('active'); stopNote(midi); };
-            key.onmouseleave = () => { key.classList.remove('active'); stopNote(midi); };
-            piano.appendChild(key);
-        }
-
-        function renderLibrary(search = "", genre = "All") {
-            const grid = document.getElementById('lib-grid');
-            grid.innerHTML = '';
-            toneLibrary.filter(t => {
-                const mS = t.name.toLowerCase().includes(search.toLowerCase());
-                const mG = genre === "All" || t.genre === genre;
-                return mS && mG;
-            }).forEach(tone => {
-                const card = document.createElement('div');
-                card.className = 'tone-card';
-                card.innerHTML = `
-                    <div class="card-top">
-                        <div class="card-icon" style="background:${tone.color}"><i class="fa ${tone.icon}"></i></div>
-                        <div><h4 style="margin:0">${tone.name}</h4><div style="font-size:11px;color:#555">${tone.genre}</div></div>
-                    </div>
-                    <div class="actions">
-                        <button class="tool-btn" onclick="alert('Shared!')"><i class="fa fa-share-nodes"></i> Share</button>
-                        <button class="play-btn" onclick="playAsset(${JSON.stringify(tone.motif)}, ${tone.dur})"><i class="fa fa-play"></i></button>
-                    </div>`;
-                grid.appendChild(card);
-            });
-        }
-
-        function playAsset(motif, dur) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-
-            // 1. STOP CURRENTLY PLAYING SAMPLES (Prevents overlapping)
-            sampleVoices.forEach(v => {
-                try {
-                    v.g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
-                    setTimeout(() => v.osc.stop(), 200);
-                } catch (e) { }
-            });
-            sampleVoices = [];
-
-            // 2. PLAY THE NEW MOTIF
-            motif.forEach((v, i) => {
-                setTimeout(() => {
-                    const s = playNote(60 + v, true, dur);
-                    sampleVoices.push(s);
-                }, i * 140); // Standardized tempo for library previews
-            });
-        }
-
-        function shareMe(n) {
-            if (navigator.share) {
-                navigator.share({ title: 'Studio Blue Tone', text: `Check out ${n} on Studio Blue Pro!`, url: window.location.href });
-            } else {
-                alert("Link copied for: " + n);
-            }
-        }
-
-        function dlMe(n) {
-            // Simulated Download for Hackathon
-            const link = document.createElement('a');
-            link.innerText = "Download";
-            alert("Exporting " + n + ".wav to your downloads folder...");
-        }
-
-        function handleRecording() {
-            const btn = document.getElementById('rec-btn');
-            if (!isRecording) {
-                isRecording = true; recStart = Date.now(); recData = [];
-                btn.innerText = "SAVE"; btn.style.background = "#fff"; btn.style.color = "#000";
-            } else {
-                isRecording = false; btn.innerText = "REC"; btn.style.background = "red"; btn.style.color = "white";
-                if (recData.length > 0) {
-                    const saved = JSON.parse(localStorage.getItem('sb_pro_mixes') || '[]');
-                    saved.push({ id: Date.now(), name: "User Tone " + saved.length, data: recData });
-                    localStorage.setItem('sb_pro_mixes', JSON.stringify(saved));
-                    renderUser();
-                }
-            }
-        }
-
-        function renderUser() {
-            const grid = document.getElementById('user-grid');
-            const saved = JSON.parse(localStorage.getItem('sb_pro_mixes') || '[]');
-            grid.innerHTML = saved.length === 0 ? '<p style="color:#444; padding: 20px;">No sessions archived.</p>' : '';
-            saved.forEach(mix => {
-                const card = document.createElement('div');
-                card.className = 'tone-card';
-                card.innerHTML = `
-                    <div class="card-top"><div class="card-icon" style="background:#333"><i class="fa fa-microphone"></i></div><h4>${mix.name}</h4></div>
-                    <div class="actions">
-                        <button class="tool-btn" style="color:#ff5252" onclick="delUser(${mix.id})"><i class="fa fa-trash"></i> Delete</button>
-                        <button class="play-btn" onclick="playArchived(${JSON.stringify(mix.data)})"><i class="fa fa-play"></i></button>
-                    </div>`;
-                grid.appendChild(card);
-            });
-        }
-
-        function delUser(id) {
-            let saved = JSON.parse(localStorage.getItem('sb_pro_mixes') || '[]');
-            localStorage.setItem('sb_pro_mixes', JSON.stringify(saved.filter(m => m.id !== id)));
-            renderUser();
-        }
-
-        function playArchived(data) { data.forEach(e => { setTimeout(() => { if (e.type === 'on') playNote(e.midi, true, 1.0); }, e.time); }); }
-
-        function navTo(e, id) {
-            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.add('active'); e.currentTarget.classList.add('active');
-        }
-
-        function filterByGenre(g) {
-            document.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            renderLibrary("", g);
-        }
-
-        function runSearch() { renderLibrary(document.getElementById('search-box').value); }
-        function toggleNote(el) { el.classList.toggle('expanded'); }
-
-        renderLibrary(); renderUser();
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); });
-        }
-    </script>
+    <script src="app.js"></script>
 </body>
 
 </html>
