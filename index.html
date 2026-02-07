@@ -5,14 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura Studio Pro</title>
-    <!-- Favicon: Blue Guitar -->
+    <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/svg+xml"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22 fill=%22%2300A3FF%22>🎸</text></svg>">
-
-    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        /* --- INTEGRATED STYLES --- */
         @import url('https://fonts.googleapis.com/css2?family=Indie+Flower&family=Inter:wght@400;900&display=swap');
 
         :root {
@@ -48,6 +47,7 @@
             align-items: center;
             gap: 12px;
             color: var(--studio-blue);
+            cursor: pointer;
         }
 
         .search-box {
@@ -94,7 +94,6 @@
             margin-left: 10px;
         }
 
-        /* Navigation - Hidden on Studio Tab via Logic */
         nav {
             background: #000;
             display: flex;
@@ -129,13 +128,13 @@
             width: 100%;
             max-width: 1200px;
             margin: 0 auto;
+            animation: fadeIn 0.3s;
         }
 
         .tab-pane.active {
             display: block;
         }
 
-        /* Home Page Onboarding */
         .welcome-box {
             background: rgba(0, 163, 255, 0.1);
             border: 1px dashed var(--studio-blue);
@@ -211,7 +210,6 @@
             color: white !important;
         }
 
-        /* Library & Cards */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -262,7 +260,6 @@
             cursor: pointer;
         }
 
-        /* Sticky Notes (2 Lines -> Expanded) */
         .sticky-board {
             display: flex;
             flex-wrap: wrap;
@@ -301,7 +298,6 @@
         .note-content {
             font-family: 'Indie Flower', cursive;
             font-size: 19px;
-            line-height: 1.3;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
@@ -355,20 +351,27 @@
             color: black;
             font-weight: bold;
         }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 
 <body>
 
     <header>
-        <div class="brand" onclick="window.location.reload()" style="cursor:pointer">
-            <i class="fa-solid fa-guitar"></i>
+        <div class="brand" onclick="window.location.reload()"><i class="fa-solid fa-guitar"></i>
             <h2 style="margin:0">Aura <span style="color:white">Studio</span></h2>
         </div>
-        <div class="search-box">
-            <i class="fa fa-search"></i>
-            <input type="text" id="search-box" placeholder="Search across library..." onkeyup="runGlobalSearch()">
-        </div>
+        <div class="search-box"><i class="fa fa-search"></i><input type="text" id="search-box"
+                placeholder="Search across library..." onkeyup="runGlobalSearch()"></div>
         <div style="display:flex; align-items:center;">
             <button id="rec-btn" onclick="handleRecording()">REC</button>
             <button id="pause-btn" onclick="togglePauseRec()">PAUSE</button>
@@ -383,7 +386,6 @@
     </nav>
 
     <div class="viewport">
-        <!-- STUDIO TAB -->
         <div id="pane-studio" class="tab-pane active">
             <div class="welcome-box">
                 <h3>Design your own signature sound.</h3>
@@ -400,8 +402,6 @@
                 <div class="keys" id="piano-keys"></div>
             </div>
         </div>
-
-        <!-- LIBRARY TAB -->
         <div id="pane-library" class="tab-pane">
             <div class="ribbon">
                 <div class="genre-chip active" onclick="filterByGenre('All')">All Tones</div>
@@ -412,13 +412,9 @@
             </div>
             <div class="grid" id="lib-grid"></div>
         </div>
-
-        <!-- USER TONES TAB -->
         <div id="pane-user" class="tab-pane">
             <div class="grid" id="user-grid"></div>
         </div>
-
-        <!-- MANUAL TAB -->
         <div id="pane-manual" class="tab-pane">
             <div class="sticky-board" id="manual-board"></div>
         </div>
