@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aura Studio Pro</title>
+    <title>Aura Music</title>
     <link rel="icon" type="image/svg+xml"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22 fill=%22%2300A3FF%22>🎸</text></svg>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -81,10 +81,23 @@
         }
 
         #rec-timer {
-            color: red;
-            font-family: monospace;
-            margin-right: 10px;
+            color: #ff5252;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            margin-right: 15px;
             display: none;
+            /* Hidden until recording starts */
+            letter-spacing: 1px;
+        }
+
+        #rec-timer.active {
+            animation: blinker 1s linear infinite;
+        }
+
+        @keyframes blinker {
+            50% {
+                opacity: 0;
+            }
         }
 
         #pause-btn {
@@ -415,7 +428,7 @@
 <body>
     <header>
         <div class="brand" onclick="navTo(null, 'pane-studio')"><i class="fa-solid fa-guitar"></i>
-            <h2 style="margin:0">Aura <span style="color:white">Studio</span></h2>
+            <h2 style="margin:0">Aura <span style="color:white">Music Studio</span></h2>
         </div>
         <div class="search-box"><i class="fa fa-search"></i><input type="text" id="search-box"
                 placeholder="Search across library..." onkeyup="runGlobalSearch()"></div>

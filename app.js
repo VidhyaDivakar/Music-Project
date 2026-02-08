@@ -55,21 +55,62 @@ if (piano) {
 }
 
 // --- 3. RECORDING ---
+const MAX_REC_TIME = 15; // Set limit to 15 seconds
 function handleRecording() {
-    const btn = document.getElementById('rec-btn'), pBtn = document.getElementById('pause-btn'), timerEl = document.getElementById('rec-timer');
+    const btn = document.getElementById('rec-btn');
+    const pBtn = document.getElementById('pause-btn');
+    const timerEl = document.getElementById('rec-timer');
+
     if (!isRecording) {
-        isRecording = true; isPaused = false; recStart = Date.now(); totalPausedTime = 0; recData = [];
-        btn.innerText = "SAVE"; pBtn.style.display = "block"; timerEl.style.display = "block";
-        let sec = 0;
-        recInterval = setInterval(() => { if (!isPaused) { sec++; timerEl.innerText = `00:${sec < 10 ? '0' : ''}${sec}`; if (sec >= 20) handleRecording(); } }, 1000);
+        // START RECORDING
+        isRecording = true;
+        isPaused = false;
+        recStart = Date.now();
+        totalPausedTime = 0;
+        recData = [];
+
+        btn.innerText = "SAVE";
+        btn.style.background = "white";
+        btn.style.color = "black";
+        pBtn.style.display = "block";
+        timerEl.style.display = "block";
+        timerEl.classList.add('active');
+
+        let secondsLeft = MAX_REC_TIME;
+        timerEl.innerText = `00:${secondsLeft}`;
+
+        // Timer Loop
+        recInterval = setInterval(() => {
+            if (!isPaused) {
+                secondsLeft--;
+                timerEl.innerText = `00:${secondsLeft < 10 ? '0' : ''}${secondsLeft}`;
+
+                if (secondsLeft <= 0) {
+                    handleRecording(); // Trigger Auto-Stop and Save
+                }
+            }
+        }, 1000);
+
     } else {
-        isRecording = false; clearInterval(recInterval);
-        btn.innerText = "REC"; pBtn.style.display = "none"; timerEl.style.display = "none";
+        // STOP & SAVE
+        isRecording = false;
+        clearInterval(recInterval);
+
+        btn.innerText = "REC";
+        btn.style.background = "red";
+        btn.style.color = "white";
+        pBtn.style.display = "none";
+        timerEl.style.display = "none";
+        timerEl.classList.remove('active');
+
         if (recData.length > 0) {
             const saved = JSON.parse(localStorage.getItem('sb_pro_v4') || '[]');
-            saved.push({ id: Date.now(), name: "User Mix " + (saved.length + 1), data: recData });
+            const newName = "Studio Mix " + (saved.length + 1);
+            saved.push({ id: Date.now(), name: newName, data: recData });
             localStorage.setItem('sb_pro_v4', JSON.stringify(saved));
+
             renderUser();
+            alert("Limit reached! Mix saved to User Tones.");
         }
     }
 }
@@ -108,12 +149,14 @@ function playArchived(id) {
         setTimeout(() => {
             if (activePlaybackId !== id) return;
             if (e.type === 'on') {
-                const s = playNote(e.midi, true, 1.5); voices.set(e.midi, s);
-                document.querySelector(`[data-midi="${e.midi}"]`)?.classList.add('active');
-            } else {
+                const s = playNote(e.midi, true, 2.0); // Start the note
+                voices.set(e.midi, s);
+            } else if (e.type === 'off') {
                 const s = voices.get(e.midi);
-                if (s) { s.g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1); voices.delete(e.midi); }
-                document.querySelector(`[data-midi="${e.midi}"]`)?.classList.remove('active');
+                if (s) {
+                    s.g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05); // Stop immediately
+                    voices.delete(e.midi);
+                }
             }
         }, e.time);
     });
@@ -123,41 +166,66 @@ function playArchived(id) {
 // --- 6. GEMINI 3 API INTEGRATION (UPDATED FOR YOUR KEY) ---
 
 async function callGemini(prompt) {
-    if (!GEMINI_API_KEY) {
-        alert("Click the Cog icon to set your API Key!");
-        return null;
-    }
+    if (!GEMINI_API_KEY) { alert("Add API Key in Settings (Cog icon)!"); return null; }
 
-    // UPDATED: Using 'gemini-2.0-flash' which is the most stable high-speed model in your list
-    // OR change 'gemini-2.0-flash' to 'gemini-3-flash-preview' if you want the experimental Gemini 3!
-    const modelName = "gemini-2.0-flash";
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
+    // Using v1beta and flash-latest as per your approved list
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
 
     try {
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }]
-            })
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-            console.error("Gemini Error:", data);
-            return "Error: " + (data.error ? data.error.message : "Check console");
+            if (response.status === 429) return "Error: Quota full. Wait 30s.";
+            return "Error: " + (data.error ? data.error.message : "API Issue");
         }
 
-        if (data.candidates && data.candidates[0].content) {
-            return data.candidates[0].content.parts[0].text;
-        } else {
-            return "AI returned an empty response. Try again.";
-        }
-
+        return data.candidates[0].content.parts[0].text;
     } catch (e) {
-        console.error("Network Error:", e);
-        return "Connection error. Check your internet.";
+        return "Error: Connection failed.";
+    }
+}
+
+async function analyzeWithAI(id, midiArray) {
+    const report = document.getElementById(`ai-report-${id}`);
+    if (!midiArray.length) { report.innerText = "AI: No notes to play."; return; }
+
+    report.innerText = "AI thinking...";
+    const names = midiArray.map(m => noteNames[m % 12]).join(', ');
+    const res = await callGemini(`Analyze these notes: [${names}]. In 10 words, tell me the chord name and the mood.`);
+    if (res) report.innerText = "AI: " + res;
+}
+
+async function generateAITone() {
+    const vibe = document.getElementById('vibe-input').value;
+    if (!vibe) return alert("Enter a vibe!");
+
+    document.getElementById('note-display').innerText = "AI composing...";
+    const res = await callGemini(`Return ONLY a JSON array of 5 MIDI offsets for the mood: "${vibe}". No markdown, no text. e.g. [0, 4, 7, 10, 12]`);
+
+    if (!res || res.includes("Error")) {
+        alert(res || "AI error. Try again!");
+        return;
+    }
+
+    try {
+        // SMART PARSER: This finds the [ ] even if Gemini adds extra text
+        const jsonMatch = res.match(/\[.*\]/);
+        if (jsonMatch) {
+            const motif = JSON.parse(jsonMatch[0]);
+            playAsset(motif, 3);
+            document.getElementById('note-display').innerText = "AI Vibe: " + vibe;
+        } else {
+            throw new Error("No array found");
+        }
+    } catch (e) {
+        console.error("AI raw response:", res);
+        alert("AI sent a message instead of notes. Try a simpler vibe!");
     }
 }
 
@@ -190,14 +258,30 @@ function renderLibrary(s = "", g = "All") {
 function renderUser() {
     const grid = document.getElementById('user-grid'); if (!grid) return;
     const saved = JSON.parse(localStorage.getItem('sb_pro_v4') || '[]');
-    grid.innerHTML = saved.length === 0 ? '<p style="color:#333">No recordings.</p>' : '';
+    grid.innerHTML = saved.length === 0 ? '<p style="color:#333; padding:20px;">No sessions archived.</p>' : '';
     saved.forEach(mix => {
         const midiList = [...new Set(mix.data.filter(e => e.type === 'on').map(e => e.midi))];
         const card = document.createElement('div'); card.className = 'tone-card';
-        card.innerHTML = `<div class="card-top"><h4>${mix.name}</h4><small id="ai-report-${mix.id}" style="color:var(--studio-blue)">No AI report.</small></div>
-            <div class="actions"><button class="tool-btn" onclick="delUser(${mix.id})"><i class="fa fa-trash"></i></button>
-            <button class="tool-btn" onclick="analyzeWithAI(${mix.id}, [${midiList}])"><i class="fa fa-robot"></i> AI</button>
-            <button class="play-btn" id="play-user-${mix.id}" onclick="playArchived(${mix.id})"><i class="fa fa-play"></i></button></div>`;
+        card.innerHTML = `
+            <div class="card-top">
+                <div class="card-icon" style="background:#333"><i class="fa fa-microphone"></i></div>
+                <div>
+                    <h4>${mix.name}</h4>
+                    <small id="ai-report-${mix.id}" style="color:var(--studio-blue); font-style:italic; font-size:11px;">AI: No analysis yet.</small>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="tool-btn" onclick="delUser(${mix.id})"><i class="fa fa-trash"></i></button>
+                
+                <!-- THE RESTORED AI BUTTON -->
+                <button class="tool-btn" style="color:var(--studio-blue)" onclick="analyzeWithAI(${mix.id}, [${midiList}])">
+                    <i class="fa fa-robot"></i> AI
+                </button>
+
+                <button class="play-btn" id="play-user-${mix.id}" onclick="playArchived(${mix.id})">
+                    <i class="fa fa-play"></i>
+                </button>
+            </div>`;
         grid.appendChild(card);
     });
 }
