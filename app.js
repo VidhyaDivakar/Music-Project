@@ -110,7 +110,7 @@ function handleRecording() {
             localStorage.setItem('sb_pro_v4', JSON.stringify(saved));
 
             renderUser();
-            alert("Limit reached! Mix saved to User Tones.");
+            alert("Mix saved to User Tones.");
         }
     }
 }
@@ -141,35 +141,64 @@ function playArchived(id) {
     const saved = JSON.parse(localStorage.getItem('sb_pro_v4') || '[]');
     const mix = saved.find(m => m.id === id);
     if (!mix) return;
+
     const btn = document.getElementById(`play-user-${id}`);
-    if (activePlaybackId === id) { activePlaybackId = null; btn.innerHTML = '<i class="fa fa-play"></i>'; return; }
-    activePlaybackId = id; btn.innerHTML = '<i class="fa fa-pause"></i>';
+
+    // Toggle STOP if already playing
+    if (activePlaybackId === id) {
+        activePlaybackId = null;
+        btn.innerHTML = '<i class="fa fa-play"></i>';
+        return;
+    }
+
+    activePlaybackId = id;
+    btn.innerHTML = '<i class="fa fa-pause"></i>';
     const voices = new Map();
+
     mix.data.forEach(e => {
         setTimeout(() => {
             if (activePlaybackId !== id) return;
             if (e.type === 'on') {
-                const s = playNote(e.midi, true, 2.0); // Start the note
+                const s = playNote(e.midi, true, 1.5);
                 voices.set(e.midi, s);
-            } else if (e.type === 'off') {
+                document.querySelector(`[data-midi="${e.midi}"]`)?.classList.add('active');
+            } else {
                 const s = voices.get(e.midi);
                 if (s) {
-                    s.g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05); // Stop immediately
+                    s.g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
                     voices.delete(e.midi);
                 }
+                document.querySelector(`[data-midi="${e.midi}"]`)?.classList.remove('active');
             }
         }, e.time);
     });
+
+    // --- NEW: THE AUTO-RESET LOGIC ---
+    // Find the timestamp of the very last event in this recording
+    const lastEventTime = mix.data.length > 0 ? mix.data[mix.data.length - 1].time : 0;
+
+    setTimeout(() => {
+        // Only reset if this specific track is still the one "active"
+        if (activePlaybackId === id) {
+            activePlaybackId = null;
+            btn.innerHTML = '<i class="fa fa-play"></i>';
+            console.log("Playback finished, UI reset.");
+        }
+    }, lastEventTime + 500); // Reset 0.5s after the last note
 }
 
 // --- 5. GEMINI AI ---
 // --- 6. GEMINI 3 API INTEGRATION (UPDATED FOR YOUR KEY) ---
 
 async function callGemini(prompt) {
-    if (!GEMINI_API_KEY) { alert("Add API Key in Settings (Cog icon)!"); return null; }
+    if (!GEMINI_API_KEY) {
+        alert("Add API Key in Settings!");
+        return null;
+    }
 
-    // Using v1beta and flash-latest as per your approved list
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+    // MATCHED FROM YOUR LIST: gemini-flash-latest
+    const model = "gemini-flash-latest";
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
 
     try {
         const response = await fetch(url, {
@@ -181,7 +210,7 @@ async function callGemini(prompt) {
         const data = await response.json();
 
         if (!response.ok) {
-            if (response.status === 429) return "Error: Quota full. Wait 30s.";
+            if (response.status === 429) return "Error: AI is busy. Wait 30s.";
             return "Error: " + (data.error ? data.error.message : "API Issue");
         }
 
