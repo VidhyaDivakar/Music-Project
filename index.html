@@ -70,13 +70,6 @@
             color: #555;
         }
 
-        /* Recording Controls & Timer */
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
         #rec-btn {
             background: red;
             color: white;
@@ -90,9 +83,8 @@
         #rec-timer {
             color: red;
             font-family: monospace;
-            font-size: 14px;
+            margin-right: 10px;
             display: none;
-            font-weight: bold;
         }
 
         #pause-btn {
@@ -104,6 +96,7 @@
             font-weight: bold;
             cursor: pointer;
             display: none;
+            margin-left: 10px;
         }
 
         #settings-btn {
@@ -112,6 +105,7 @@
             color: var(--text-dim);
             cursor: pointer;
             font-size: 18px;
+            margin-left: 15px;
         }
 
         nav {
@@ -155,7 +149,6 @@
             display: block;
         }
 
-        /* WELCOME BOX */
         .welcome-box {
             background: rgba(0, 163, 255, 0.05);
             border: 1px dashed var(--studio-blue);
@@ -163,17 +156,6 @@
             border-radius: 12px;
             margin-bottom: 25px;
             text-align: center;
-        }
-
-        .welcome-box h3 {
-            margin: 0;
-            color: var(--studio-blue);
-        }
-
-        .welcome-box p {
-            color: #888;
-            font-size: 14px;
-            line-height: 1.6;
         }
 
         .monitor {
@@ -244,7 +226,86 @@
             transform: translateY(4px);
         }
 
-        /* STICKY NOTES STYLING */
+        /* LIBRARY STYLES (RIBBON) */
+        .ribbon {
+            background: #080A0C;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            white-space: nowrap;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .genre-chip {
+            padding: 8px 18px;
+            background: #161B22;
+            border-radius: 20px;
+            font-size: 11px;
+            cursor: pointer;
+            border: 1px solid #333;
+            color: var(--text-dim);
+            transition: 0.2s;
+        }
+
+        .genre-chip.active {
+            background: var(--studio-blue);
+            color: black;
+            font-weight: bold;
+            border-color: var(--studio-blue);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .tone-card {
+            background: var(--card-bg);
+            border: 1px solid #222;
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 4px solid #333;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #222;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        .play-btn {
+            background: var(--studio-blue);
+            border: none;
+            color: black;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tool-btn {
+            background: none;
+            border: none;
+            color: #555;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .tool-btn:hover {
+            color: var(--studio-blue);
+        }
+
+        /* MANUAL */
         .sticky-board {
             display: flex;
             flex-wrap: wrap;
@@ -255,11 +316,11 @@
 
         .sticky-note {
             width: 260px;
-            min-height: 200px;
+            min-height: 180px;
             padding: 30px 20px 20px;
             position: relative;
             cursor: pointer;
-            box-shadow: 8px 8px 15px rgba(0, 0, 0, 0.5);
+            box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
             transition: 0.4s;
             overflow: hidden;
             border-bottom-right-radius: 40px 5px;
@@ -287,7 +348,6 @@
             font-weight: 900;
             text-transform: uppercase;
             margin-bottom: 10px;
-            font-size: 16px;
             border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
         }
 
@@ -307,62 +367,14 @@
         }
 
         .pin {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             background: #ff5252;
             border-radius: 50%;
             position: absolute;
             top: 10px;
             left: 50%;
             transform: translateX(-50%);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        /* CARDS */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .tone-card {
-            background: var(--card-bg);
-            border: 1px solid #222;
-            border-radius: 15px;
-            padding: 20px;
-            border-left: 5px solid #333;
-        }
-
-        .actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid #222;
-            padding-top: 15px;
-            margin-top: 15px;
-        }
-
-        .play-btn {
-            background: var(--studio-blue);
-            border: none;
-            color: black;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
-        .tool-btn {
-            background: none;
-            border: none;
-            color: #555;
-            cursor: pointer;
-            font-size: 16px;
-            transition: 0.2s;
-        }
-
-        .tool-btn:hover {
-            color: var(--studio-blue);
         }
 
         @keyframes fadeIn {
@@ -384,7 +396,7 @@
         </div>
         <div class="search-box"><i class="fa fa-search"></i><input type="text" id="search-box"
                 placeholder="Search across library..." onkeyup="runGlobalSearch()"></div>
-        <div class="header-actions">
+        <div style="display:flex; align-items:center;">
             <span id="rec-timer">00:00</span>
             <button id="rec-btn" onclick="handleRecording()">REC</button>
             <button id="pause-btn" onclick="togglePauseRec()">PAUSE</button>
@@ -401,14 +413,11 @@
     </nav>
 
     <div class="viewport">
-        <!-- STUDIO TAB -->
         <div id="pane-studio" class="tab-pane active">
             <div class="welcome-box">
-                <h3>Design your own signature keyboard sound.</h3>
-                <p>Welcome to Aura Studio! You are the producer here. Use the 64-key polyphonic keyboard to find your
-                    melody. When you are ready, click <strong style="color:red">REC</strong> to start capturing. Your
-                    performance will be saved as a high-fidelity asset in the <strong>User Tones</strong> tab
-                    automatically.</p>
+                <h3>Design your own signature sound.</h3>
+                <p>Play the keys. Click <strong style="color:red">REC</strong> to start. Saved files appear in
+                    <strong>User Tones</strong>.</p>
             </div>
             <div class="monitor">
                 <div id="note-display">Ready</div>
@@ -417,7 +426,6 @@
                 <div class="keys" id="piano-keys"></div>
             </div>
         </div>
-
         <div id="pane-library" class="tab-pane">
             <div class="ribbon">
                 <div class="genre-chip active" onclick="filterByGenre('All')">All Tones</div>
@@ -428,14 +436,11 @@
             </div>
             <div class="grid" id="lib-grid"></div>
         </div>
-
         <div id="pane-ai" class="tab-pane">
             <div
                 style="background: rgba(124, 77, 255, 0.1); border: 1px solid var(--ai-purple); padding: 40px; border-radius: 15px; text-align: center;">
                 <h2 style="color:var(--ai-purple)"><i class="fa fa-magic"></i> AI Vibe-to-Motif</h2>
-                <p style="color:#666; margin-bottom:30px;">Tell Gemini a mood (e.g. "Space Journey") and it will compose
-                    a motif for you.</p>
-                <input type="text" id="vibe-input" placeholder="Describe a vibe..."
+                <input type="text" id="vibe-input" placeholder="e.g. Spooky Ghost..."
                     style="width: 60%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; margin-bottom: 20px;">
                 <br>
                 <button onclick="generateAITone()"
@@ -443,7 +448,6 @@
                     & PLAY</button>
             </div>
         </div>
-
         <div id="pane-user" class="tab-pane">
             <div class="grid" id="user-grid"></div>
         </div>
@@ -451,7 +455,6 @@
             <div class="sticky-board" id="manual-board"></div>
         </div>
     </div>
-
     <script src="tones.js"></script>
     <script src="app.js"></script>
 </body>
