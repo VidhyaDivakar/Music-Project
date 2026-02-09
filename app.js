@@ -117,16 +117,21 @@ async function analyzeWithAI(id, midiArray) {
 /**
  * 1. UPDATED: GENERATIVE AI LOGIC (10s Ambient & Rolling 20 Limit)
  */
+/** 
+ AI COMPOSER: Stylistic Song Recognition 
+ */
 async function generateAITone() {
     const vibe = document.getElementById('vibe-input').value;
-    if (!vibe) return alert("Describe a vibe first!");
+    if (!vibe) return alert("Describe a vibe or a song title!");
 
-    document.getElementById('note-display').innerText = "AI is thinking...";
+    document.getElementById('note-display').innerText = "AI is composing...";
 
-    // Updated Prompt for 15 notes (approx 10 seconds of music)
-    const prompt = `Translate this vibe: "${vibe}" into a 15-note ambient melody. 
-    Return ONLY a JSON array of 15 integers (MIDI offsets). 
-    No text, no markdown. Example: [0, 4, 7, 11, 12, 14, 16, 19, 21, 24, 26, 28, 31, 33, 36]`;
+    // PROMPT UPGRADE: Tells Gemini to mimic styles/songs
+    const prompt = `Act as a composer. The user wants this vibe or song: "${vibe}". 
+    1. If this is a known song, use its actual note intervals. 
+    2. If it is a mood, create a unique 15-note melody.
+    Return ONLY a JSON array of 15 MIDI offsets from 0. 
+    NO text, NO markdown. Example: [0, 4, 7, 12...]`;
 
     const res = await callGemini(prompt);
 
@@ -134,7 +139,6 @@ async function generateAITone() {
         const cleanJson = res.match(/\[.*\]/)[0];
         const motif = JSON.parse(cleanJson);
 
-        // Save logic with 20-tone limit
         const newAIAsset = {
             id: Date.now(),
             name: vibe.charAt(0).toUpperCase() + vibe.slice(1),
@@ -143,25 +147,22 @@ async function generateAITone() {
         };
 
         let aiSaved = JSON.parse(localStorage.getItem('sb_ai_assets') || '[]');
-
-        // Add new asset to the START of the list
         aiSaved.unshift(newAIAsset);
-
-        // THE ROLLING LIMIT: If more than 20, remove the oldest (the last one)
-        if (aiSaved.length > 20) {
-            aiSaved.pop();
-        }
-
+        if (aiSaved.length > 20) aiSaved.pop();
         localStorage.setItem('sb_ai_assets', JSON.stringify(aiSaved));
 
-        // Re-render the AI grid and play the new sound
         renderAIAssets();
-        playAsset(motif, 10, "ai_playing"); // Plays for 10 seconds
-        document.getElementById('note-display').innerText = "AI Composed: " + vibe;
+
+        // Show in ribbon briefly, then revert
+        const ribbon = document.getElementById('note-display');
+        ribbon.innerText = "AI Generated: " + vibe;
+        ribbon.style.color = "var(--ai-purple)";
+        setTimeout(() => { ribbon.innerText = "Ready"; ribbon.style.color = "var(--studio-blue)"; }, 4000);
+
+        playAsset(motif, 10, `ai-${newAIAsset.id}`);
 
     } catch (e) {
-        console.error("AI Error:", e);
-        alert("AI had trouble with that vibe. Try something else!");
+        alert("AI had an error. Try a specific song name!");
         document.getElementById('note-display').innerText = "Ready";
     }
 }
@@ -243,21 +244,62 @@ function shareMe(toneName) {
         alert("Link copied to clipboard! You can now paste it in your chat.");
     }
 }
-function playAsset(motif, dur, btnId) {
+ * 2. PLAYBACK ENGINE: Functional Play / Pause / Stop
+    */
+function playAsset(motif, dur, id) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    if (activePlaybackId === btnId) { activePlaybackId = null; document.getElementById(`play-lib-${btnId}`).innerHTML = '<i class="fa fa-play"></i>'; return; }
 
-    activePlaybackId = btnId;
-    const btn = document.getElementById(`play-lib-${btnId}`);
+    // Find the button (works for Library, User Mix, and AI Scratchpad)
+    const btn = document.querySelector(`[onclick*='${id}']`) || document.getElementById(`play-ai-${id.split('-')[1]}`);
+
+    // TOGGLE OFF: If this specific ID is already playing, STOP it.
+    if (activePlaybackId === id) {
+        activePlaybackId = null;
+        if (btn) btn.innerHTML = '<i class="fa fa-play"></i>';
+        sampleVoices.forEach(v => { try { v.g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1); v.osc.stop(); } catch (e) { } });
+        sampleVoices = [];
+        return;
+    }
+
+    // TOGGLE ON: Stop any other sound and play this one
+    activePlaybackId = id;
     if (btn) btn.innerHTML = '<i class="fa fa-pause"></i>';
 
-    motif.forEach((v, i) => setTimeout(() => {
-        if (activePlaybackId !== btnId) return;
-        const s = playNote(55 + v, true, 0.5);
-        const k = document.querySelector(`[data-midi="${55 + v}"]`);
-        k?.classList.add('active'); setTimeout(() => k?.classList.remove('active'), 150);
-    }, i * 200));
-    setTimeout(() => { if (btn) btn.innerHTML = '<i class="fa fa-play"></i>'; activePlaybackId = null; }, motif.length * 200 + 500);
+    // Clear previous audio
+    sampleVoices.forEach(v => { try { v.osc.stop(); } catch (e) { } });
+    sampleVoices = [];
+
+    motif.forEach((v, i) => {
+        setTimeout(() => {
+            if (activePlaybackId !== id) return; // Stop if user toggled off
+            const s = playNote(55 + v, true, 1.2);
+            sampleVoices.push(s);
+
+            // Highlight keys
+            const k = document.querySelector(`[data-midi="${55 + v}"]`);
+            if (k) { k.classList.add('active'); setTimeout(() => k.classList.remove('active'), 200); }
+        }, i * 600); // 10 second stretch
+    });
+
+    // Reset button after 10s
+    setTimeout(() => {
+        if (activePlaybackId === id) {
+            activePlaybackId = null;
+            if (btn) btn.innerHTML = '<i class="fa fa-play"></i>';
+        }
+    }, motif.length * 600 + 500);
+}
+/**
+ * 3. SHARE LOGIC (Universal)
+ */
+function shareMe(name) {
+    const text = `Check out this unique "${name}" sound asset I created on Aura Studio Pro!`;
+    if (navigator.share) {
+        navigator.share({ title: 'Aura Studio', text: text, url: window.location.href });
+    } else {
+        const fallback = `https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + window.location.href)}`;
+        window.open(fallback, '_blank');
+    }
 }
 
 function renderUser() {

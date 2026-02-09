@@ -34,3 +34,54 @@
         });
     }
 </script>
+
+Add the logic for the genereateAITone and lets see
+
+async function generateAITone() {
+const vibe = document.getElementById('vibe-input').value;
+if (!vibe) return alert("Describe a vibe first!");
+
+document.getElementById('note-display').innerText = "AI is thinking...";
+
+// Updated Prompt for 15 notes (approx 10 seconds of music)
+const prompt = `Translate this vibe: "${vibe}" into a 15-note ambient melody.
+Return ONLY a JSON array of 15 integers (MIDI offsets).
+No text, no markdown. Example: [0, 4, 7, 11, 12, 14, 16, 19, 21, 24, 26, 28, 31, 33, 36]`;
+
+const res = await callGemini(prompt);
+
+try {
+const cleanJson = res.match(/\[.*\]/)[0];
+const motif = JSON.parse(cleanJson);
+
+// Save logic with 20-tone limit
+const newAIAsset = {
+id: Date.now(),
+name: vibe.charAt(0).toUpperCase() + vibe.slice(1),
+motif: motif,
+timestamp: new Date().toLocaleTimeString()
+};
+
+let aiSaved = JSON.parse(localStorage.getItem('sb_ai_assets') || '[]');
+
+// Add new asset to the START of the list
+aiSaved.unshift(newAIAsset);
+
+// THE ROLLING LIMIT: If more than 20, remove the oldest (the last one)
+if (aiSaved.length > 20) {
+aiSaved.pop();
+}
+
+localStorage.setItem('sb_ai_assets', JSON.stringify(aiSaved));
+
+// Re-render the AI grid and play the new sound
+renderAIAssets();
+playAsset(motif, 10, "ai_playing"); // Plays for 10 seconds
+document.getElementById('note-display').innerText = "AI Composed: " + vibe;
+
+} catch (e) {
+console.error("AI Error:", e);
+alert("AI had trouble with that vibe. Try something else!");
+document.getElementById('note-display').innerText = "Ready";
+}
+}
