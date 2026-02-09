@@ -188,22 +188,40 @@ function renderAIAssets() {
                 </div>
             </div>
             <div class="actions">
-                <button class="tool-btn" onclick="shareMe('${asset.name}')"><i class="fa fa-share-nodes"></i></button>
-                <button class="play-btn" id="play-ai-${asset.id}" onclick="playAsset(${JSON.stringify(asset.motif)}, 10, 'ai-${asset.id}')">
+                <button class="tool-btn" onclick="shareMe(\`${asset.name.replace(/'/g, "\\'")}\`)">
+    <i class="fa fa-share-nodes"></i>
+</button>
+                <button class="tool-btn" onclick="playAsset(${JSON.stringify(asset.motif)}, 10, 'ai-${asset.id}')">
                     <i class="fa fa-play"></i>
                 </button>
+                <button class="tool-btn" onclick="delAIAsset(${asset.id})"><i class="fa fa-trash"></i></button>
             </div>
         `;
         grid.appendChild(card);
     });
 }
-function shareMe(name) {
-    const text = `Check out this unique "${name}" sound asset I created on Aura Studio Pro!`;
+function shareMe(assetName) {
+    const shareText = `Check out this unique "${assetName}" sound asset from Aura Studio Pro! 🎹`;
+    const shareUrl = window.location.href;
+
+    // 1. Try Native Mobile Sharing
     if (navigator.share) {
-        navigator.share({ title: 'Aura Studio', text: text, url: window.location.href });
-    } else {
-        const fallback = `https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + window.location.href)}`;
-        window.open(fallback, '_blank');
+        navigator.share({
+            title: 'Aura Studio Pro',
+            text: shareText,
+            url: shareUrl
+        }).catch(err => console.log("Share cancelled"));
+    }
+    // 2. Fallback: Copy to Clipboard (Standard for Desktop)
+    else if (navigator.clipboard) {
+        const fullContent = `${shareText} ${shareUrl}`;
+        navigator.clipboard.writeText(fullContent).then(() => {
+            alert("Share link & description copied to clipboard! Paste it to WhatsApp or Facebook.");
+        });
+    }
+    // 3. Last Resort
+    else {
+        alert("Sharing not supported on this browser. Copy the URL to share!");
     }
 }
 
