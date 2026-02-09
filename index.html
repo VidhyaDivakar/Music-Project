@@ -443,19 +443,26 @@
         </div>
 
         <!-- AI COMPOSE -->
+        <!-- AI COMPOSE TAB -->
         <div id="pane-ai" class="tab-pane">
             <div
-                style="background: rgba(124, 77, 255, 0.1); border: 1px solid var(--ai-purple); padding: 40px; border-radius: 15px; text-align: center;">
-                <h2 style="color:var(--ai-purple); font-family:'Outfit'"><i class="fa fa-magic"></i> Vibe-to-Motif
+                style="background: rgba(124, 77, 255, 0.05); border: 1px solid var(--ai-purple); padding: 30px; border-radius: 15px; text-align: center; margin-bottom: 30px;">
+                <h2 style="color:var(--ai-purple); font-family:'Outfit'"><i class="fa fa-magic"></i> AI Soundscape
                     Generator</h2>
-                <p style="color:#888; margin-bottom: 20px;">Gemini 1.5 Flash translates language into MIDI. Try
-                    "Underwater Forest" or "Fast Action Chase".</p>
-                <input type="text" id="vibe-input" placeholder="Enter a vibe..."
-                    style="width: 60%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; margin-bottom: 20px;">
-                <br><button onclick="generateAITone()"
-                    style="background:var(--ai-purple); color:white; border:none; padding:15px 30px; border-radius:10px; font-weight:bold; cursor:pointer;">GENERATE
-                    & PERFORM</button>
+                <p style="color:#888; margin-bottom: 20px;">Gemini will compose a 10-second ambient signature. Your last
+                    20 creations are saved below.</p>
+
+                <div style="display:flex; gap:10px; justify-content:center; max-width:600px; margin: 0 auto;">
+                    <input type="text" id="vibe-input" placeholder="e.g. Rainy Jazz Cafe, Mars Landing..."
+                        style="flex:1; padding: 12px; background: #000; border: 1px solid #333; color: white; border-radius: 8px; outline: none;">
+                    <button onclick="generateAITone()"
+                        style="background:var(--ai-purple); color:white; border:none; padding:12px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">GENERATE</button>
+                </div>
             </div>
+
+            <!-- NEW: The AI Scratchpad Grid -->
+            <h3 style="color:var(--ai-purple); font-family:'Outfit'; margin-bottom:15px;">AI SCRATCHPAD (Limit: 20)</h3>
+            <div class="grid" id="ai-grid"></div>
         </div>
 
         <!-- ABOUT -->

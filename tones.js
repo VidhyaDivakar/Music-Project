@@ -21,8 +21,25 @@ for (let i = 1; i <= 100; i++) {
 }
 
 const manualData = [
-    { head: "The Vision", body: "Aura Studio is where 'happy accidents' become permanent assets. Discover unique signatures in every click. We built this for the dreamers who find a melody but don't have a pen.", color: "green" },
-    { head: "PWA Power", body: "Install this app on your phone! It works offline and saves all your tones to local memory. Access your studio anytime, anywhere, even without internet.", color: "yellow" },
-    { head: "Composition", body: "Play a melody on the keyboard. Hit REC. Your performance is instantly archived as a high-quality tone in your gallery. Pause and Resume as needed.", color: "yellow" },
-    { head: "Integration", body: "Export your tones, share them via WhatsApp, or use them as UI notifications for your next app project. Every sound is a sharable asset.", color: "green" }
+    {
+        head: "Aura Studio Core",
+        body: "Aura Studio is a high-fidelity sound workstation. Play the keyboard, hit REC to capture, and use Pause/Resume for precision. Once saved, click the 'AI' Robot to send your note sequences to the Google Gemini 1.5 Flash API. Gemini analyzes the harmonic structure, renames your mix with a trendy title, and provides a deep mood analysis.",
+        color: "green"
+    },
+    {
+        head: "Gemini API Integration",
+        body: "We integrated the Gemini 1.5 Flash API via the v1beta endpoint to bridge the gap between math and emotion. The app serializes MIDI data into JSON strings and prompts Gemini to act as a Resident Producer. It performs 'Latent Sentiment Analysis' to identify chords and musical intent that hard-coded algorithms would miss.",
+        color: "yellow"
+    },
+    {
+        head: "AI Compose Feature",
+        body: "The AI Composer uses Generative Intelligence to turn language into music. When you type a 'vibe', Gemini generates a 5-note MIDI offset array. Our engine instantly synthesizes this into an 'Ear-con'—a short audio asset designed for app notifications, UI feedback, or modern ringtones.",
+        color: "yellow"
+    },
+    {
+        head: "PWA Power & Access",
+        body: "Access Aura Studio anywhere! Install it as a standalone app by clicking the 'Install' icon in your browser address bar (Chrome) or the 'Add to Home Screen' button (Safari). It works offline via Service Workers and features full laptop keyboard mapping for a tactile studio experience.",
+        color: "green"
+    }
 ];
+

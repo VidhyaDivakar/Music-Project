@@ -114,10 +114,98 @@ async function analyzeWithAI(id, midiArray) {
     }
 }
 
+/**
+ * 1. UPDATED: GENERATIVE AI LOGIC (10s Ambient & Rolling 20 Limit)
+ */
 async function generateAITone() {
-    const vibe = document.getElementById('vibe-input').value; if (!vibe) return;
-    const res = await callGemini(`Return ONLY a JSON array of 5 MIDI offsets (integers 0-12) for vibe: "${vibe}". No text.`);
-    try { const motif = JSON.parse(res.match(/\[.*\]/)[0]); playAsset(motif, 3); } catch (e) { alert("AI Compose Busy. Try again!"); }
+    const vibe = document.getElementById('vibe-input').value;
+    if (!vibe) return alert("Describe a vibe first!");
+
+    document.getElementById('note-display').innerText = "AI is thinking...";
+
+    // Updated Prompt for 15 notes (approx 10 seconds of music)
+    const prompt = `Translate this vibe: "${vibe}" into a 15-note ambient melody. 
+    Return ONLY a JSON array of 15 integers (MIDI offsets). 
+    No text, no markdown. Example: [0, 4, 7, 11, 12, 14, 16, 19, 21, 24, 26, 28, 31, 33, 36]`;
+
+    const res = await callGemini(prompt);
+
+    try {
+        const cleanJson = res.match(/\[.*\]/)[0];
+        const motif = JSON.parse(cleanJson);
+
+        // Save logic with 20-tone limit
+        const newAIAsset = {
+            id: Date.now(),
+            name: vibe.charAt(0).toUpperCase() + vibe.slice(1),
+            motif: motif,
+            timestamp: new Date().toLocaleTimeString()
+        };
+
+        let aiSaved = JSON.parse(localStorage.getItem('sb_ai_assets') || '[]');
+
+        // Add new asset to the START of the list
+        aiSaved.unshift(newAIAsset);
+
+        // THE ROLLING LIMIT: If more than 20, remove the oldest (the last one)
+        if (aiSaved.length > 20) {
+            aiSaved.pop();
+        }
+
+        localStorage.setItem('sb_ai_assets', JSON.stringify(aiSaved));
+
+        // Re-render the AI grid and play the new sound
+        renderAIAssets();
+        playAsset(motif, 10, "ai_playing"); // Plays for 10 seconds
+        document.getElementById('note-display').innerText = "AI Composed: " + vibe;
+
+    } catch (e) {
+        console.error("AI Error:", e);
+        alert("AI had trouble with that vibe. Try something else!");
+        document.getElementById('note-display').innerText = "Ready";
+    }
+}
+
+/**
+ * 2. NEW: RENDERER FOR THE AI TAB
+ */
+function renderAIAssets() {
+    const grid = document.getElementById('ai-grid');
+    if (!grid) return;
+
+    const saved = JSON.parse(localStorage.getItem('sb_ai_assets') || '[]');
+    grid.innerHTML = saved.length === 0 ? '<p style="color:#333">No AI soundscapes generated yet.</p>' : '';
+
+    saved.forEach(asset => {
+        const card = document.createElement('div');
+        card.className = 'tone-card';
+        card.style.borderLeft = `5px solid var(--ai-purple)`;
+
+        card.innerHTML = `
+            <div class="card-top">
+                <div class="card-icon" style="background:var(--ai-purple)"><i class="fa fa-magic"></i></div>
+                <div>
+                    <h4>${asset.name}</h4>
+                    <small style="color:#555">${asset.timestamp} • 10s Ambient</small>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="tool-btn" onclick="shareMe('${asset.name}')"><i class="fa fa-share-nodes"></i></button>
+                <button class="play-btn" id="play-ai-${asset.id}" onclick="playAsset(${JSON.stringify(asset.motif)}, 10, 'ai-${asset.id}')">
+                    <i class="fa fa-play"></i>
+                </button>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+// Ensure you call this in your init() function
+function init() {
+    renderUser();
+    renderLibrary();
+    renderAIAssets(); // Added this call
+    // ... manual board logic ...
 }
 
 // 5. LIBRARY RENDERING
@@ -132,7 +220,29 @@ function renderLibrary(s = "", g = "All") {
         grid.appendChild(card);
     });
 }
+function shareMe(toneName) {
+    // 1. Prepare the content to share
+    const shareData = {
+        title: 'Aura Music Studio',
+        text: `Check out this unique "${toneName}" sound asset I found on Aura Studio Pro!`,
+        url: window.location.href // This shared your GitHub Pages link
+    };
 
+    // 2. Check if the browser supports native sharing (Modern way)
+    if (navigator.share) {
+        navigator.share(shareData)
+            .then(() => console.log('Tone shared successfully'))
+            .catch((err) => console.log('Error sharing:', err));
+    } else {
+        // 3. Fallback for older browsers (Direct WhatsApp link)
+        const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareData.text + " " + shareData.url)}`;
+        window.open(whatsappUrl, '_blank');
+
+        // Also copy to clipboard as a backup
+        navigator.clipboard.writeText(shareData.url);
+        alert("Link copied to clipboard! You can now paste it in your chat.");
+    }
+}
 function playAsset(motif, dur, btnId) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     if (activePlaybackId === btnId) { activePlaybackId = null; document.getElementById(`play-lib-${btnId}`).innerHTML = '<i class="fa fa-play"></i>'; return; }
