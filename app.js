@@ -14,47 +14,14 @@ let isRecording = false, isPaused = false, recStart = 0, totalPausedTime = 0, pa
 let GEMINI_API_KEY = localStorage.getItem('gemini_key') || "";
 
 // --- 1. COMPUTER KEYBOARD MAPPING (3 OCTAVES) ---
-// Reverse the map to easily find keys by MIDI value
 const keyMap = {
-    // Octave 2 (Numbers)
-    '1': 36, '2': 37, '3': 38, '4': 39, '5': 40, '6': 41, '7': 42, '8': 43, '9': 44, '0': 45, '-': 46, '=': 47,
-    // Octave 3 (QWERTY)
-    'q': 48, 'w': 49, 'e': 50, 'r': 51, 't': 52, 'y': 53, 'u': 54, 'i': 55, 'o': 56, 'p': 57, '[': 58, ']': 59,
-    // Octave 4 (ASDF)
-    'a': 60, 's': 61, 'd': 62, 'f': 63, 'g': 64, 'h': 65, 'j': 66, 'k': 67, 'l': 68, ';': 69, "'": 70, '\\': 71,
-    // Octave 5 (ZXCV)
-    'z': 72, 'x': 73, 'c': 74, 'v': 75, 'b': 76, 'n': 77, 'm': 78, ',': 79, '.': 80, '/': 81
+    // Octave 3 (z to m)
+    'z': 48, 's': 49, 'x': 50, 'd': 51, 'c': 52, 'v': 53, 'g': 54, 'b': 55, 'h': 56, 'n': 57, 'j': 58, 'm': 59,
+    // Octave 4 (a to l)
+    'a': 60, 'w': 61, 's_': 62, 'e_': 63, 'd_': 64, 'f_': 65, 't_': 66, 'g_': 67, 'y_': 68, 'h_': 69, 'u_': 70, 'j_': 71, 'k': 62, 'l': 64,
+    // Octave 5 (q to i)
+    'q': 72, '2': 73, 'w_': 74, '3': 75, 'e': 76, 'r': 77, '5': 78, 't': 79, '6': 80, 'y': 81, '7': 82, 'u': 83, 'i': 84
 };
-
-const reverseKeyMap = Object.fromEntries(Object.entries(keyMap).map(([k, v]) => [v, k]));
-
-const pianoContainer = document.getElementById('piano-keys');
-if (pianoContainer) {
-    pianoContainer.innerHTML = ''; // Clear previous if any
-    for (let i = 0; i < 64; i++) {
-        const midi = 36 + i;
-        const label = noteNames[midi % 12] + (Math.floor(midi / 12) - 1);
-        const computerKey = reverseKeyMap[midi];
-
-        const key = document.createElement('div');
-        key.className = `key ${label.includes('#') ? 'black' : 'white'}`;
-        key.innerHTML = `<span>${label}</span>`;
-
-        if (computerKey) {
-            const hint = document.createElement('div');
-            hint.className = 'key-hint';
-            hint.innerText = computerKey.toUpperCase();
-            key.appendChild(hint);
-        }
-
-        key.dataset.midi = midi;
-        key.onmousedown = (e) => { e.preventDefault(); key.classList.add('active'); playNote(midi); };
-        key.onmouseup = () => { key.classList.remove('active'); stopNote(midi); };
-        key.onmouseleave = () => { if (activeOscs.has(midi)) { key.classList.remove('active'); stopNote(midi); } };
-        pianoContainer.appendChild(key);
-    }
-}
-
 // --- 2. ABOUT TAB CONTENT (GEMINI API DETAILS) ---
 const manualData = [
     {
@@ -83,7 +50,6 @@ const manualData = [
         color: "green"
     }
 ];
-
 window.addEventListener('keydown', (e) => {
     if (document.activeElement.tagName === 'INPUT') return;
     if (e.repeat) return;
@@ -272,11 +238,7 @@ async function analyzeWithAI(id, midiArray) {
         // SAVE PERMANENTLY
         const saved = JSON.parse(localStorage.getItem('sb_pro_v4') || '[]');
         const idx = saved.findIndex(m => m.id === id);
-        if (idx !== -1) {
-            saved[idx].aiReport = analysis; // Save the text
-            saved[idx].name = trendyName; // Save the new title
-            localStorage.setItem('sb_pro_v4', JSON.stringify(saved));
-        }
+        if (idx !== -1) { saved[idx].aiReport = analysis; saved[idx].name = trendyName; localStorage.setItem('sb_pro_v4', JSON.stringify(saved)); }
     }
 }
 
@@ -312,8 +274,7 @@ function renderUser() {
         const midiList = [...new Set(mix.data.filter(e => e.type === 'on').map(e => e.midi))];
         const card = document.createElement('div'); card.className = 'tone-card';
         card.innerHTML = `<div class="card-top"><div><h4 id="card-title-${mix.id}">${mix.name}</h4><small id="ai-report-${mix.id}" style="color:var(--studio-blue)">${mix.aiReport || 'No AI analysis yet.'}</small></div></div>
-            <div class="actions">// Add this line inside the .actions div in your renderUser loop
-<button class="tool-btn" onclick="shareMe('${mix.name}')"><i class="fa fa-share-nodes"></i></button> <button class="tool-btn" onclick="delUser(${mix.id})"><i class="fa fa-trash"></i></button>
+            <div class="actions"><button class="tool-btn" onclick="delUser(${mix.id})"><i class="fa fa-trash"></i></button>
             <button class="tool-btn" onclick="analyzeWithAI(${mix.id}, [${midiList}])"><i class="fa fa-wand-magic-sparkles"></i> AI</button>
             <button class="play-btn" id="play-user-${mix.id}" onclick="playArchived(${mix.id})"><i class="fa fa-play"></i></button></div>`;
         grid.appendChild(card);
@@ -321,27 +282,7 @@ function renderUser() {
 }
 
 function shareMe(n) { const url = window.location.href; if (navigator.share) navigator.share({ title: 'Aura Studio', text: `Check out my tone: ${n}`, url: url }); else alert("Link copied!"); }
-function navTo(e, id) {
-    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-
-    document.getElementById(id).classList.add('active');
-    if (e) e.currentTarget.classList.add('active');
-
-    // Auto-render manual if entering About tab
-    if (id === 'pane-manual') renderAbout();
-}
-function renderAbout() {
-    const board = document.getElementById('manual-board');
-    if (board) {
-        board.innerHTML = manualData.map(m => `
-            <div class="sticky-note ${m.color}" onclick="this.classList.toggle('expanded')">
-                <div class="pin"></div>
-                <h3 class="note-heading">${m.head}</h3>
-                <p class="note-content">${m.body}</p>
-            </div>`).join('');
-    }
-}
+function navTo(e, id) { document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(id).classList.add('active'); if (e) e.currentTarget.classList.add('active'); }
 function runGlobalSearch() { const q = document.getElementById('search-box').value; if (q.length > 0) { navTo(null, 'pane-library'); renderLibrary(q); } }
 function filterByGenre(g) { document.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('active')); event.currentTarget.classList.add('active'); renderLibrary("", g); }
 function openSettings() { const key = prompt("Enter Gemini API Key:", GEMINI_API_KEY); if (key !== null) { GEMINI_API_KEY = key; localStorage.setItem('gemini_key', key); } }
