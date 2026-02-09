@@ -147,18 +147,39 @@
             text-align: center;
         }
 
+        /* Fix for Keyboard Lines and Ribbon */
+        .keys {
+            border-left: 1px solid #333;
+            border-right: 1px solid #333;
+        }
+
+        .key.white {
+            border-right: 1px solid #ddd;
+        }
+
+        .key.black {
+            border: 1px solid #000;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
         .monitor {
-            background: #000;
-            padding: 30px;
-            border-radius: 12px;
-            border: 1px solid var(--studio-blue);
-            text-align: center;
-            box-shadow: inset 0 0 20px rgba(0, 163, 255, 0.2);
-            min-height: 50px;
+            min-height: 80px;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
-            transition: 0.3s;
+            align-items: center;
+        }
+
+        #note-display {
+            transition: all 0.3s ease;
+        }
+
+        .status-sub {
+            font-size: 10px;
+            color: #555;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 5px;
         }
 
         #note-display {
@@ -423,9 +444,7 @@
             </div>
             <div class="monitor">
                 <div id="note-display">Ready</div>
-            </div>
-            <div class="keyboard-wrap">
-                <div class="keys" id="piano-keys"></div>
+                <div id="status-sub" class="status-sub">Harmonic Engine Active</div>
             </div>
         </div>
 
