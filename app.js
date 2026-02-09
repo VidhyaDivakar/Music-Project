@@ -25,38 +25,21 @@ window.addEventListener('keyup', e => {
 });
 
 // 2. AUDIO ENGINE
-// Add a tracker for user activity to the ribbon logic
-let lastUserActivity = Date.now();
-
 function playNote(midi, isAuto = false, dur = 1.5) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
-
-    // Clear "Sonic Identity" if user starts playing manually
-    if (!isAuto) {
-        lastUserActivity = Date.now();
-        document.getElementById('note-display').style.color = "var(--studio-blue)";
-    }
-
     if (activeOscs.has(midi) && !isAuto) return;
-
     const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
     osc.type = 'triangle';
     osc.frequency.setValueAtTime(440 * Math.pow(2, (midi - 69) / 12), audioCtx.currentTime);
-
     g.gain.setValueAtTime(0, audioCtx.currentTime);
     g.gain.linearRampToValueAtTime(0.25, audioCtx.currentTime + 0.05);
-
     osc.connect(g); g.connect(audioCtx.destination);
     osc.start();
-
     if (!isAuto) {
         activeOscs.set(midi, { osc, g });
-        if (isRecording && !isPaused) recData.push({ time: Date.now() - recStart - totalPausedTime, midi, type: 'on' });
+        if (isRecording) recData.push({ time: Date.now() - recStart, midi, type: 'on' });
     } else {
-        setTimeout(() => {
-            g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
-            setTimeout(() => osc.stop(), 200);
-        }, dur * 1000);
+        setTimeout(() => { g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1); setTimeout(() => osc.stop(), 200); }, dur * 1000);
         return { osc, g };
     }
 }
@@ -65,9 +48,9 @@ function stopNote(midi) {
     if (activeOscs.has(midi)) {
         const { osc, g } = activeOscs.get(midi);
         g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
-        setTimeout(() => { try { osc.stop(); } catch (e) { } }, 200);
+        setTimeout(() => osc.stop(), 200);
         activeOscs.delete(midi);
-        if (isRecording && !isPaused) recData.push({ time: Date.now() - recStart - totalPausedTime, midi, type: 'off' });
+        if (isRecording) recData.push({ time: Date.now() - recStart, midi, type: 'off' });
     }
 }
 
@@ -118,43 +101,16 @@ async function callGemini(prompt) {
     return data.candidates[0].content.parts[0].text;
 }
 
-// Update this inside your keydown listener and mousedown listener:
-// document.getElementById('note-display').innerText = label;
-
 async function analyzeWithAI(id, midiArray) {
-    const report = document.getElementById(`ai-report-${id}`), titleEl = document.getElementById(`card-title-${id}`);
-    const monitor = document.getElementById('note-display');
-
-    report.innerText = "AI Vibe-checking...";
+    const report = document.getElementById(`ai-report-${id}`); report.innerText = "AI Vibe-checking...";
     const names = midiArray.map(m => noteNames[m % 12]).join(', ');
-
-    // Improved Prompt for UNIQUENESS
-    const prompt = `Act as a cutting-edge music producer. Notes: [${names}]. 
-    1. If it's a known song, name it. 
-    2. Otherwise, give it a unique 2-word trendy name.
-    3. Provide a 10-word analysis. 
-    Format: Name: [Name] | Analysis: [Analysis]`;
-
-    const res = await callGemini(prompt);
+    const res = await callGemini(`Producer mode. Notes: [${names}]. If famous song, name it. Otherwise give a 2-word trendy name and 10-word mood. Format Name: [Name] | Analysis: [Analysis]`);
     if (res && res.includes('|')) {
         const [n, a] = res.split('|');
-        const trendyName = n.replace('Name:', '').trim();
-        const analysis = a.replace('Analysis:', '').trim();
-        // Inside analyzeWithAI after getting TrendyName
-        document.getElementById('status-sub').innerText = "Sonic Identity: " + trendyName;
-        document.getElementById('status-sub').style.color = "var(--ui-amber)";
-        // Update Card
-        titleEl.innerText = trendyName;
-        report.innerText = analysis;
-
-        // UPDATE RIBBON: Show the Sonic Identity
-        monitor.innerText = "Sonic Identity: " + trendyName;
-        monitor.style.color = "var(--ai-purple)";
-
-        // Save to LocalStorage
+        const trendyName = n.replace('Name:', '').trim(), analysis = a.replace('Analysis:', '').trim();
         const saved = JSON.parse(localStorage.getItem('sb_pro_v4') || '[]');
         const idx = saved.findIndex(m => m.id === id);
-        if (idx !== -1) { saved[idx].aiReport = analysis; saved[idx].name = trendyName; localStorage.setItem('sb_pro_v4', JSON.stringify(saved)); }
+        if (idx !== -1) { saved[idx].aiReport = analysis; saved[idx].name = trendyName; localStorage.setItem('sb_pro_v4', JSON.stringify(saved)); renderUser(); }
     }
 }
 
@@ -166,21 +122,46 @@ async function analyzeWithAI(id, midiArray) {
  */
 async function generateAITone() {
     const vibe = document.getElementById('vibe-input').value;
-    if (!vibe) return;
+    if (!vibe) return alert("Describe a vibe or a song title!");
 
-    // FORCING UNIQUENESS: Instructions for specific scales/intervals
-    const prompt = `Compose a 10-second MIDI motif for: "${vibe}". 
-    - If 'Happy': Use Major 7ths and high octaves.
-    - If 'Sad': Use Minor 2nds and slow descending intervals.
-    - If 'Action': Use staccato Tritones and fast rhythmic jumps.
-    Return ONLY a JSON array of 15 MIDI offsets (e.g. [0, 2, -5...]). No text.`;
+    document.getElementById('note-display').innerText = "AI is composing...";
+
+    // PROMPT UPGRADE: Tells Gemini to mimic styles/songs
+    const prompt = `Act as a composer. The user wants this vibe or song: "${vibe}". 
+    1. If this is a known song, use its actual note intervals. 
+    2. If it is a mood, create a unique 15-note melody.
+    Return ONLY a JSON array of 15 MIDI offsets from 0. 
+    NO text, NO markdown. Example: [0, 4, 7, 12...]`;
 
     const res = await callGemini(prompt);
+
     try {
         const cleanJson = res.match(/\[.*\]/)[0];
         const motif = JSON.parse(cleanJson);
-        playAsset(motif, 3, "ai_gen");
-    } catch (e) { alert("AI Compose Error. Try a different mood!"); }
+
+        const newAIAsset = {
+            id: Date.now(),
+            name: vibe.charAt(0).toUpperCase() + vibe.slice(1),
+            motif: motif,
+            timestamp: new Date().toLocaleTimeString()
+        };
+
+        let aiSaved = JSON.parse(localStorage.getItem('sb_ai_assets') || '[]');
+        aiSaved.unshift(newAIAsset);
+        if (aiSaved.length > 20) {
+            aiSaved.pop();
+        }
+        localStorage.setItem('sb_ai_assets', JSON.stringify(aiSaved));
+
+        renderAIAssets();
+        playAsset(motif, 10, "ai_playing"); // Plays for 10 seconds
+        document.getElementById('note-display').innerText = "AI Composed: " + vibe;
+
+    } catch (e) {
+        console.error("AI Error:", e);
+        alert("AI had trouble with that vibe. Try something else!");
+        document.getElementById('note-display').innerText = "Ready";
+    }
 }
 
 /**
@@ -207,9 +188,7 @@ function renderAIAssets() {
                 </div>
             </div>
             <div class="actions">
-                <button class="tool-btn" onclick="shareMe('${asset.name}', 'AI-composed soundscape')">
-    <i class="fa fa-share-nodes"></i>
-</button>
+                <button class="tool-btn" onclick="shareMe('${asset.name}')"><i class="fa fa-share-nodes"></i></button>
                 <button class="play-btn" id="play-ai-${asset.id}" onclick="playAsset(${JSON.stringify(asset.motif)}, 10, 'ai-${asset.id}')">
                     <i class="fa fa-play"></i>
                 </button>
@@ -219,7 +198,6 @@ function renderAIAssets() {
     });
 }
 
-// Ensure you call this in your init() function
 function init() {
     renderUser();
     renderLibrary();
@@ -234,13 +212,34 @@ function renderLibrary(s = "", g = "All") {
         const card = document.createElement('div'); card.className = 'tone-card';
         card.style.borderTop = `5px solid ${tone.color}`;
         card.innerHTML = `<div class="card-top"><h4>${tone.name}</h4><small>${tone.genre}</small></div>
-            <div class="actions"><button class="tool-btn" onclick="shareMe('${tone.name}', 'preset tone')">
-    <i class="fa fa-share-nodes"></i></button>
+            <div class="actions"><button class="tool-btn" onclick="shareMe('${tone.name}')"><i class="fa fa-share-nodes"></i></button>
             <button class="play-btn" id="play-lib-${tone.name.replace(/\s+/g, '')}" onclick="playAsset(${JSON.stringify(tone.motif)}, ${tone.dur}, '${tone.name.replace(/\s+/g, '')}')"><i class="fa fa-play"></i></button></div>`;
         grid.appendChild(card);
     });
 }
+function shareMe(toneName) {
+    // 1. Prepare the content to share
+    const shareData = {
+        title: 'Aura Music Studio',
+        text: `Check out this unique "${toneName}" sound asset I found on Aura Studio Pro!`,
+        url: window.location.href // This shared your GitHub Pages link
+    };
 
+    // 2. Check if the browser supports native sharing (Modern way)
+    if (navigator.share) {
+        navigator.share(shareData)
+            .then(() => console.log('Tone shared successfully'))
+            .catch((err) => console.log('Error sharing:', err));
+    } else {
+        // 3. Fallback for older browsers (Direct WhatsApp link)
+        const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareData.text + " " + shareData.url)}`;
+        window.open(whatsappUrl, '_blank');
+
+        // Also copy to clipboard as a backup
+        navigator.clipboard.writeText(shareData.url);
+        alert("Link copied to clipboard! You can now paste it in your chat.");
+    }
+}
 /* 2. PLAYBACK ENGINE: Functional Play / Pause / Stop
    */
 function playAsset(motif, dur, id) {
@@ -286,7 +285,18 @@ function playAsset(motif, dur, id) {
         }
     }, motif.length * 600 + 500);
 }
-
+/**
+ * 3. SHARE LOGIC (Universal)
+ */
+function shareMe(name) {
+    const text = `Check out this unique "${name}" sound asset I created on Aura Studio Pro!`;
+    if (navigator.share) {
+        navigator.share({ title: 'Aura Studio', text: text, url: window.location.href });
+    } else {
+        const fallback = `https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + window.location.href)}`;
+        window.open(fallback, '_blank');
+    }
+}
 
 function renderUser() {
     const grid = document.getElementById('user-grid'); if (!grid) return;
@@ -299,9 +309,7 @@ function renderUser() {
             <div class="actions"><button class="tool-btn" onclick="delUser(${mix.id})"><i class="fa fa-trash"></i></button>
             <button class="tool-btn" onclick="analyzeWithAI(${mix.id}, [${midiList}])"><i class="fa fa-wand-magic-sparkles"></i> AI</button>
             <button class="play-btn" id="play-user-${mix.id}" onclick="playArchived(${mix.id})"><i class="fa fa-play"></i></button>
-            <button class="tool-btn" onclick="shareMe('${mix.name}', 'personal recording')">
-    <i class="fa fa-share-nodes"></i>
-</button></div>`;
+            <button class="tool-btn" onclick="shareMe('${mix.name}')"><i class="fa fa-share-nodes"></i></button></div>`;
         grid.appendChild(card);
     });
 }
@@ -334,7 +342,7 @@ function delUser(id) { let s = JSON.parse(localStorage.getItem('sb_pro_v4') || '
 function openSettings() { const key = prompt("Enter Gemini API Key:", GEMINI_API_KEY); if (key) { GEMINI_API_KEY = key; localStorage.setItem('gemini_key', key); } }
 function runGlobalSearch() { const q = document.getElementById('search-box').value; if (q.length > 0) { navTo(null, 'pane-library'); renderLibrary(q); } }
 function filterByGenre(g) { document.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('active')); event.currentTarget.classList.add('active'); renderLibrary("", g); }
-
+function shareMe(n) { alert("Asset Share Link Copied: " + n); }
 
 function init() {
     renderUser(); renderLibrary();
@@ -342,28 +350,3 @@ function init() {
     if (board) board.innerHTML = manualData.map(m => `<div class="sticky-note ${m.color}" onclick="this.classList.toggle('expanded')"><div class="pin"></div><h3 class="note-heading">${m.head}</h3><p class="note-content">${m.body}</p></div>`).join('');
 }
 window.onload = init;
-
-function shareMe(name, type = "tone") {
-    const shareText = `Check out this unique ${type} "${name}" I created on Aura Studio Pro! 🎹✨`;
-    const shareUrl = window.location.href;
-
-    // 1. Primary: Native Mobile/Modern Sharing
-    if (navigator.share) {
-        navigator.share({
-            title: 'Aura Studio Pro',
-            text: shareText,
-            url: shareUrl
-        }).catch(() => console.log("Share cancelled by user"));
-    }
-    // 2. Secondary: If on Desktop, use Clipboard (Cleaner than WhatsApp popups)
-    else if (navigator.clipboard) {
-        const fullContent = `${shareText} ${shareUrl}`;
-        navigator.clipboard.writeText(fullContent).then(() => {
-            alert("Description & Link copied to clipboard! You can now paste it in WhatsApp or Facebook.");
-        });
-    }
-    // 3. Final Fallback: Old-school Alert
-    else {
-        alert(`Copy this to share: ${shareText} ${shareUrl}`);
-    }
-}
