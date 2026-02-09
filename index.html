@@ -4,13 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aura Music</title>
+    <title>Aura Studio Pro</title>
     <link rel="icon" type="image/svg+xml"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22 fill=%22%2300A3FF%22>🎸</text></svg>">
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;800&family=Outfit:wght@400;700&family=Indie+Flower&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Indie+Flower&family=Inter:wght@400;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Indie+Flower&family=Inter:wght@400;900&family=Outfit:wght@700&display=swap');
 
         :root {
             --studio-blue: #00A3FF;
@@ -31,29 +30,6 @@
             overflow: hidden;
         }
 
-        /* New Headings Font */
-        h1,
-        h2,
-        h3,
-        .note-heading {
-            font-family: 'Outfit', sans-serif;
-        }
-
-        /* Sticky Note Manual Updates */
-        .note-content {
-            font-family: 'Inter', sans-serif;
-            /* Changed from handwriting to Inter for better readability */
-            font-size: 14px;
-            line-height: 1.5;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .sticky-note.expanded .note-content {
-            font-family: 'Inter', sans-serif;
-            font-size: 16px;
-        }
-
         header {
             background: #000;
             padding: 15px 40px;
@@ -62,23 +38,6 @@
             justify-content: space-between;
             border-bottom: 2px solid var(--studio-blue);
             z-index: 1000;
-        }
-
-        .key-hint {
-            position: absolute;
-            top: 10px;
-            width: 100%;
-            text-align: center;
-            font-size: 10px;
-            font-weight: 800;
-            color: var(--studio-blue);
-            opacity: 0.6;
-            pointer-events: none;
-        }
-
-        .key.black .key-hint {
-            color: #fff;
-            top: 5px;
         }
 
         .brand {
@@ -122,35 +81,10 @@
         }
 
         #rec-timer {
-            color: #ff5252;
-            font-family: 'Courier New', Courier, monospace;
-            font-weight: bold;
-            margin-right: 15px;
+            color: red;
+            font-family: monospace;
+            margin-right: 10px;
             display: none;
-            /* Hidden until recording starts */
-            letter-spacing: 1px;
-        }
-
-        #rec-timer.active {
-            animation: blinker 1s linear infinite;
-        }
-
-        @keyframes blinker {
-            50% {
-                opacity: 0;
-            }
-        }
-
-        #pause-btn {
-            background: #FFC107;
-            color: black;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            display: none;
-            margin-left: 10px;
         }
 
         #settings-btn {
@@ -159,7 +93,7 @@
             color: var(--text-dim);
             cursor: pointer;
             font-size: 18px;
-            margin-left: 15px;
+            margin-left: 10px;
         }
 
         nav {
@@ -191,29 +125,6 @@
             overflow-y: auto;
         }
 
-        .ribbon {
-            background: #080A0C;
-            padding: 15px;
-            display: flex;
-            /* Forces them to be in a row */
-            gap: 10px;
-            overflow-x: auto;
-            /* Allows scrolling on mobile */
-            white-space: nowrap;
-            justify-content: center;
-            /* Centers them on desktop */
-        }
-
-        .genre-chip {
-            display: inline-block;
-            padding: 8px 18px;
-            background: #161B22;
-            border-radius: 20px;
-            font-size: 11px;
-            cursor: pointer;
-            border: 1px solid #333;
-        }
-
         .tab-pane {
             display: none;
             width: 100%;
@@ -229,9 +140,9 @@
         .welcome-box {
             background: rgba(0, 163, 255, 0.05);
             border: 1px dashed var(--studio-blue);
-            padding: 25px;
+            padding: 20px;
             border-radius: 12px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             text-align: center;
         }
 
@@ -242,6 +153,7 @@
             border: 1px solid var(--studio-blue);
             text-align: center;
             margin-bottom: 20px;
+            position: relative;
         }
 
         #note-display {
@@ -301,50 +213,21 @@
             background: var(--studio-blue) !important;
             color: white !important;
             transform: translateY(4px);
+            box-shadow: 0 0 15px var(--studio-blue);
         }
 
-        /* LIBRARY STYLES (RIBBON) */
-        .ribbon {
-            background: #080A0C;
-            padding: 15px;
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            white-space: nowrap;
-            margin-bottom: 20px;
-            justify-content: center;
-        }
-
-        .genre-chip {
-            padding: 8px 18px;
-            background: #161B22;
-            border-radius: 20px;
-            font-size: 11px;
-            cursor: pointer;
-            border: 1px solid #333;
-            color: var(--text-dim);
-            transition: 0.2s;
-        }
-
-        .genre-chip.active {
-            background: var(--studio-blue);
-            color: black;
-            font-weight: bold;
-            border-color: var(--studio-blue);
-        }
-
-        /* Modern AI Icon Color */
-        .fa-wand-magic-sparkles {
+        .key-hint {
+            position: absolute;
+            top: 10px;
+            font-size: 10px;
+            font-weight: 800;
             color: var(--studio-blue);
-            filter: drop-shadow(0 0 5px var(--studio-blue));
+            opacity: 0.5;
         }
 
-        /* Sustain highlight */
-        .key.active {
-            background: var(--studio-blue) !important;
-            color: white !important;
-            transform: translateY(4px);
-            box-shadow: 0 5px 15px rgba(0, 163, 255, 0.4);
+        .key.black .key-hint {
+            color: white;
+            top: 5px;
         }
 
         .grid {
@@ -358,7 +241,7 @@
             border: 1px solid #222;
             border-radius: 15px;
             padding: 20px;
-            border-left: 4px solid #333;
+            border-top: 4px solid #333;
         }
 
         .actions {
@@ -378,9 +261,6 @@
             height: 40px;
             border-radius: 50%;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .tool-btn {
@@ -389,14 +269,8 @@
             color: #555;
             cursor: pointer;
             font-size: 16px;
-            transition: 0.2s;
         }
 
-        .tool-btn:hover {
-            color: var(--studio-blue);
-        }
-
-        /* MANUAL */
         .sticky-board {
             display: flex;
             flex-wrap: wrap;
@@ -430,12 +304,13 @@
         }
 
         .sticky-note.expanded {
-            width: 450px;
+            width: 500px;
             transform: rotate(0deg) scale(1.05);
             z-index: 100;
         }
 
         .note-heading {
+            font-family: 'Outfit', sans-serif;
             font-weight: 900;
             text-transform: uppercase;
             margin-bottom: 10px;
@@ -443,9 +318,9 @@
         }
 
         .note-content {
-            font-family: 'Indie Flower', cursive;
-            font-size: 19px;
-            line-height: 1.3;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            line-height: 1.4;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
@@ -483,14 +358,13 @@
 <body>
     <header>
         <div class="brand" onclick="navTo(null, 'pane-studio')"><i class="fa-solid fa-guitar"></i>
-            <h2 style="margin:0">Aura <span style="color:white">Music Studio</span></h2>
+            <h2 style="margin:0">Aura <span style="color:white">Studio</span></h2>
         </div>
         <div class="search-box"><i class="fa fa-search"></i><input type="text" id="search-box"
-                placeholder="Search across library..." onkeyup="runGlobalSearch()"></div>
-        <div style="display:flex; align-items:center;">
+                placeholder="Search library..." onkeyup="runGlobalSearch()"></div>
+        <div class="header-actions">
             <span id="rec-timer">00:00</span>
             <button id="rec-btn" onclick="handleRecording()">REC</button>
-            <button id="pause-btn" onclick="togglePauseRec()">PAUSE</button>
             <button id="settings-btn" onclick="openSettings()"><i class="fa fa-cog"></i></button>
         </div>
     </header>
@@ -506,10 +380,9 @@
     <div class="viewport">
         <div id="pane-studio" class="tab-pane active">
             <div class="welcome-box">
-                <h3>Design your own signature sound.</h3>
-                <p>Play the keys. Click <strong style="color:red">REC</strong> to start. Saved files appear in
-                    <strong>User Tones</strong>.
-                </p>
+                <h3 style="font-family:'Outfit'">Design your own signature sound.</h3>
+                <p>Welcome to Aura Studio. Use the 64-key keyboard or your laptop keys to compose. Click
+                    <strong>REC</strong> to capture your motif.</p>
             </div>
             <div class="monitor">
                 <div id="note-display">Ready</div>
@@ -519,23 +392,15 @@
             </div>
         </div>
         <div id="pane-library" class="tab-pane">
-            <div class="ribbon">
-                <div class="genre-chip active" onclick="filterByGenre('All')">All Tones</div>
-                <div class="genre-chip" onclick="filterByGenre('Gaming Classics')">Gaming</div>
-                <div class="genre-chip" onclick="filterByGenre('Viral Pop Snippets')">Viral Pop</div>
-                <div class="genre-chip" onclick="filterByGenre('ASMR & Nature')">ASMR</div>
-                <div class="genre-chip" onclick="filterByGenre('Minimalist UI')">UI & Apps</div>
-            </div>
             <div class="grid" id="lib-grid"></div>
         </div>
         <div id="pane-ai" class="tab-pane">
             <div
                 style="background: rgba(124, 77, 255, 0.1); border: 1px solid var(--ai-purple); padding: 40px; border-radius: 15px; text-align: center;">
-                <h2 style="color:var(--ai-purple)"><i class="fa fa-magic"></i> AI Vibe-to-Motif</h2>
+                <h2 style="color:var(--ai-purple); font-family:'Outfit'">AI Vibe-to-Motif</h2>
                 <input type="text" id="vibe-input" placeholder="e.g. Spooky Ghost..."
                     style="width: 60%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 10px; margin-bottom: 20px;">
-                <br>
-                <button onclick="generateAITone()"
+                <br><button onclick="generateAITone()"
                     style="background:var(--ai-purple); color:white; border:none; padding:15px 30px; border-radius:10px; font-weight:bold; cursor:pointer;">GENERATE
                     & PLAY</button>
             </div>
