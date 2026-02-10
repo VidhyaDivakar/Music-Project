@@ -102,16 +102,27 @@ async function callGemini(prompt) {
 }
 
 async function analyzeWithAI(id, midiArray) {
-    const report = document.getElementById(`ai-report-${id}`); report.innerText = "AI Vibe-checking...";
+    const report = document.getElementById(`ai-report-${id}`), titleEl = document.getElementById(`card-title-${id}`);
+    report.innerText = "AI vibe-checking...";
     const names = midiArray.map(m => noteNames[m % 12]).join(', ');
-    const res = await callGemini(`Producer mode. Notes: [${names}]. If famous song, name it. Otherwise give a 2-word trendy name and 10-word mood. Format Name: [Name] | Analysis: [Analysis]`);
-    if (res && res.includes('|')) {
-        const [n, a] = res.split('|');
-        const trendyName = n.replace('Name:', '').trim(), analysis = a.replace('Analysis:', '').trim();
+
+    // FORCES JSON - No more "|" errors
+    const res = await callGemini(`Notes: [${names}]. Return ONLY JSON: {"n": "2-word trendy name", "a": "10-word mood"}`);
+
+    try {
+        const data = JSON.parse(res.replace(/```json|```/g, "").trim());
+        if (titleEl) titleEl.innerText = data.n; // Updates the Name
+        report.innerText = data.a; // Updates the Analysis
+
+        // Save permanently
         const saved = JSON.parse(localStorage.getItem('sb_pro_v4') || '[]');
         const idx = saved.findIndex(m => m.id === id);
-        if (idx !== -1) { saved[idx].aiReport = analysis; saved[idx].name = trendyName; localStorage.setItem('sb_pro_v4', JSON.stringify(saved)); renderUser(); }
-    }
+        if (idx !== -1) {
+            saved[idx].name = data.n;
+            saved[idx].aiReport = data.a;
+            localStorage.setItem('sb_pro_v4', JSON.stringify(saved));
+        }
+    } catch (e) { report.innerText = "AI: " + res; }
 }
 
 /**
@@ -128,7 +139,7 @@ async function generateAITone() {
 
     // PROMPT UPGRADE: Tells Gemini to mimic styles/songs
     const prompt = `Act as a composer. The user wants this vibe or song: "${vibe}". 
-    1. If this is a known song, use its actual note intervals. 
+    1. If this is a known song like 'Let It Go' or 'Christmas'), use its actual note intervals. 
     2. If it is a mood, create a unique 15-note melody.
     Return ONLY a JSON array of 15 MIDI offsets from 0. 
     NO text, NO markdown. Example: [0, 4, 7, 12...]`;
@@ -332,7 +343,7 @@ function renderUser() {
     saved.forEach(mix => {
         const midiList = [...new Set(mix.data.filter(e => e.type === 'on').map(e => e.midi))];
         const card = document.createElement('div'); card.className = 'tone-card';
-        card.innerHTML = `<div class="card-top"><div><h4>${mix.name}</h4><small id="ai-report-${mix.id}" style="color:var(--studio-blue)">${mix.aiReport || 'Ready for Gemini analysis.'}</small></div></div>
+        card.innerHTML = `<div class="card-top"><div><h4 id="card-title-${mix.id}">${mix.name}</h4><small id="ai-report-${mix.id}" style="color:var(--studio-blue)">${mix.aiReport || 'Ready for Gemini analysis.'}</small></div></div>
             <div class="actions"><button class="tool-btn" onclick="delUser(${mix.id})"><i class="fa fa-trash"></i></button>
             <button class="tool-btn" onclick="analyzeWithAI(${mix.id}, [${midiList}])"><i class="fa fa-wand-magic-sparkles"></i> AI</button>
             <button class="play-btn" id="play-user-${mix.id}" onclick="playArchived(${mix.id})"><i class="fa fa-play"></i></button>
